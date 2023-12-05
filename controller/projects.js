@@ -116,38 +116,55 @@ exports.deleteProjectsHandler = async (req, res) => {
 
 exports.updateProjectsHandler = async (req, res) => {
     try {
-    const { project_id, project_name, project_desc, deadline, project_category } = req.body;
     const cookie = req.headers.cookie
-    const token = cookie.split('=')[1]
-    if(!token){
+    const verifyToken = cookie.split('=')[1]
+    if(!verifyToken){  
         return res.status(400).json({
             status: 'fail',
             message: 'unauthorized!'
         })
     }
-    if(project_id == "" || typeof project_id == "undefined") {
-        return res
-        .status(404).json({status: "failed", message: "There's nothing to be requested in the body data!"});
-    };
-    const result = await projectsTable.findOne({where: {project_id}});
-    if(!result) {
-        return res
-        .status(404).json({status: "failed", message: "There's no project with that id!"});
-    }
-    if(result.project_name == project_name ||result.project_desc == project_desc || result.project_category === project_category) {
-        return res
-        .status(404).json({status: "failed", message: "There's nothing to be updated in the body data!"});
-    }
-    await projectsTable.update({
-        project_name,
-        project_desc,
-        deadline,
-        project_category,
-    },{where:{project_id}})
-    return res.status(200).json({
-        status : 'success',
-        message: 'success update project!'
+    const { project_id, project_name, project_desc, deadline, project_category } = req.body;
+    jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
+        if(err){
+            return res.status(404).json({
+                status: 'fail',
+                message: err
+            })
+        }
+        const username = decoded.username
+        const user = await usersTable.findOne({where: {username}})
+        const result = await projectsTable.findOne({where: {project_id}});
+        if(!result) {
+            return res
+            .status(404).json({status: "failed", message: "There's no project with that id!"});
+        }
+        if(result.user_id !== user.user_id){
+            return res.status(404).json({
+                status: 'fail',
+                message: 'u cannot access this!'
+            })
+        }
+        if(project_id == "" || typeof project_id == "undefined") {
+            return res
+            .status(404).json({status: "failed", message: "There's nothing to be requested in the body data!"});
+        };
+        if(result.project_name == project_name ||result.project_desc == project_desc || result.project_category === project_category) {
+            return res
+            .status(404).json({status: "failed", message: "There's nothing to be updated in the body data!"});
+        }
+        await projectsTable.update({
+            project_name,
+            project_desc,
+            deadline,
+            project_category,
+        },{where:{project_id}})
+        return res.status(200).json({
+            status : 'success',
+            message: 'success update project!'
+        })
     })
+    
 } catch (error) {
         
 }
