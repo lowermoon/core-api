@@ -139,7 +139,7 @@ exports.updateProjectsHandler = async (req, res) => {
             return res
             .status(404).json({status: "failed", message: "There's no project with that id!"});
         }
-        if(result.user_id !== user.user_id){
+        if(result.user_id !== user.consumerId){
             return res.status(404).json({
                 status: 'fail',
                 message: 'u cannot access this!'
@@ -166,7 +166,11 @@ exports.updateProjectsHandler = async (req, res) => {
     })
     
 } catch (error) {
-        
+    console.error(error);
+    return res.status(500).json({
+        status: 'fail',
+        message: 'Internal server error'
+    })
 }
 }
 
