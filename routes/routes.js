@@ -1,7 +1,7 @@
 const express = require ('express')
 const auth = require('../controller/auth.js')
 const verify = require('../middleware/verifyToken.js');
-const  profile  = require('../controller/profile.js');
+const profile  = require('../controller/profile.js');
 const jwt = require('jsonwebtoken')
 
 const  resetPassword  = require('../controller/resetPassword.js');
@@ -59,6 +59,7 @@ router.get('/verify',(req,res)=>{
   router.post('/verifyUser',auth.verify)
   router.post('/login', auth.login)
   router.all('/profile/edit',profile.updateProfile);
+  router.post('/profile/uploadphoto', profile.uploadPhotoProfile);
   router.post('/forget',resetPassword.forgetPassword);
   router.post('/forget/verify', resetPassword.verifyCode)
   router.post('/forget/verify/new', resetPassword.enterNewPassword)
@@ -73,4 +74,4 @@ router.get('/verify',(req,res)=>{
   
 
 
-module.exports =router;
+module.exports = router;

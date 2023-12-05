@@ -269,3 +269,28 @@ exports.getSkills = async(req,res)=>{
     })
   }
 }
+
+exports.uploadPhotoProfile = async (req, res) => {
+  try {
+    // Check Cookie
+    const cookie = await req.headers.cookie
+    const verifyToken = cookie.split('=')[1]
+    if(!cookie){
+      return res.status(402)
+      .json({
+        status: 'fail',
+        message: 'unauthorized!'
+      })
+    }
+
+    // Decrypt JWT Token
+     jwt.verify(verifyToken, proccess.env.ACCESS_TOKEN_SECRET, async (error, decoded) => {
+      return res.send({message: decoded});
+    })
+  } catch (error) {
+    return res.status(400).json({
+      status: 'failed',
+      message: error
+    })
+  }
+}

@@ -24,6 +24,11 @@ const controlpanel_api = express.Router()
     .render('control/data/projects/projects_edit', { data });
 })
 
+.get('/test', (req, res) => {
+    return res
+    .render('control/tester/test');
+})  
+
 
 
 .get('/data/user', (req, res) => {
