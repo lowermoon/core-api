@@ -99,12 +99,20 @@ exports.forgetPassword = async (req, res) => {
     exports.verifyCode = async(req,res)=>{
     try{
         const userVerifCode = req.body.userVerifCode
-        const cookie = req.cookies
-        if (!cookie.emailToken) {
+        const cookie = req.headers.cookie
+        
+        if(!cookie){
+            return res.status(400).
+            json({
+                status: 'fail',
+                message: 'cookie not found!'
+            })
+        }
+        const emailToken = cookie.split('=')[1]
+        if (!emailToken) {
             return res.status(402)
             .json('unauthorized');
         }
-        const emailToken = cookie.emailToken
         await jwt.verify(emailToken,process.env.ACCESS_TOKEN_SECRET,async(err,decoded)=>{
             if(err){
                 return res.json({
@@ -138,16 +146,22 @@ exports.forgetPassword = async (req, res) => {
 
  exports.enterNewPassword = async(req,res)=>{
     const {password,confirmNewPassword} =req.body
-    const cookie = req.cookies
-
-    if(!cookie.emailToken){
+    const cookie = req.headers.cookie
+    if(!cookie){
+        return res.status(400)
+        .json({
+            status: 'fail',
+            message: 'cookie not found!'
+        })
+    }
+    const emailToken = cookie.split('=')[1]
+    if(!emailToken){
         return res.status(404)
         .json({
             status: 'fail',
             message: 'unauthorized!'
         })
     }
-    const emailToken = cookie.emailToken
     await jwt.verify(emailToken,process.env.ACCESS_TOKEN_SECRET, async(err,decoded)=>{
         if(err){
             req.status(500).json({
@@ -176,7 +190,7 @@ exports.forgetPassword = async (req, res) => {
             })
         }
         if(password !== confirmNewPassword){
-            res.status(402).json({
+            return res.status(402).json({
                 status: 'fail',
                 message: 'password - confirm password tidak sama!'
             })

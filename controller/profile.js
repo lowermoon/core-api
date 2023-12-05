@@ -19,6 +19,13 @@ const createSkills = require('../models/functions/createSkills')
 exports.profileUsers = async(req,res)=>{
   const { username } = req.params;
   const cookie = await req.headers.cookie;
+  if(!cookie){
+    return res.status(400)
+    .json({
+      status:'fail',
+      message: 'there is no cookie here!'
+    })
+  }
   const verifyToken = cookie.split('=')[1];
   try {
     const user = await usersTable.findOne({ where: { username } }) 
@@ -61,9 +68,18 @@ exports.profileUsers = async(req,res)=>{
     }
   };
   
+
+
   exports.profiles = async(req,res)=>{
     try {
       const cookie = await req.headers.cookie;
+      if(!cookie){
+        return res.status(400)
+        .json({
+          status:'fail',
+          message: 'there is no cookie here!'
+        })
+      }
       const verifyToken = cookie.split('=')[1];
       
       if (!verifyToken) {
@@ -105,8 +121,7 @@ exports.profileUsers = async(req,res)=>{
   
         // If no response has been sent, send a 404 response
         res.status(404).json({ message: 'User tidak ditemukan!' });
-      });
-  
+      });     
     } catch (error) {
       return res.status(500).json({
         status: 'fail',
@@ -120,6 +135,13 @@ exports.updateProfile = async(req,res)=>{
   try {
     const {fullName,password,telephoneNumber,nationalId} = req.body;
     const cookie = await req.headers.cookie;
+    if(!cookie){
+      return res.status(400)
+      .json({
+        status: 'fail',
+        message: 'there is no cookie here!'
+      })
+    }
     const verifyToken = cookie.split('=')[1];
 
     if (!verifyToken) {

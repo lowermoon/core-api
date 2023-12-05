@@ -6,16 +6,16 @@ const projectsTable = require('../models/tables/projectsTable')
 
 
 // CREATE READ UPDATE DELETE FOR PROJECTS TABLE
-exports.newProjectHandler = async (req, res) => {
+exports.newProjectHandler = async (req, res) => {x
     try {
         const cookie = await req.headers.cookie;
-        const verifyToken = cookie.split('=')[1];
         if (!cookie) {
           return res.status(402).json({
             status: 'fail',
             message: 'unauthorized!'
           });
         }
+        const verifyToken = cookie.split('=')[1];
         jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
             if (err) {
               return res.redirect('/');
@@ -117,6 +117,12 @@ exports.deleteProjectsHandler = async (req, res) => {
 exports.updateProjectsHandler = async (req, res) => {
     try {
     const cookie = req.headers.cookie
+    if(!cookie){
+        return res.status(400).json({
+            status: 'fail',
+            message: 'there is no cookie there!'
+        })
+    }
     const verifyToken = cookie.split('=')[1]
     if(!verifyToken){  
         return res.status(400).json({
