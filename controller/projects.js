@@ -197,4 +197,3 @@ exports.getAllProject = async (req,res) =>{
     }
 }
 // HANDLER FOR ACTIVE PROJECTS
-
