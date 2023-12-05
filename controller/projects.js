@@ -2,20 +2,21 @@ const { newProject, deleteProject, searchProjectsAll, searchProjectsFilter } = r
 const usersTable = require('../models/tables/usersTable')
 const freelancerTable = require('../models/tables/freelancerTable')
 const jwt = require('jsonwebtoken')
+const projectsTable = require('../models/tables/projectsTable')
 
 
 // CREATE READ UPDATE DELETE FOR PROJECTS TABLE
 exports.newProjectHandler = async (req, res) => {
     try {
-        const cookie = await req.cookies;
-        if (!cookie.verifyToken) {
+        const cookie = await req.headers.cookie;
+        const verifyToken = cookie.split('=')[1];
+        if (!cookie) {
           return res.status(402).json({
             status: 'fail',
             message: 'unauthorized!'
           });
         }
-        const token = cookie.verifyToken
-        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
+        jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
             if (err) {
               return res.redirect('/');
             }
@@ -113,5 +114,66 @@ exports.deleteProjectsHandler = async (req, res) => {
     .status(200).json({status: "success", message: "Deleting the project data is succeeded!", data: data});
 }
 
+exports.updateProjectsHandler = async (req, res) => {
+    try {
+    const { project_id, project_name, project_desc, deadline, project_category } = req.body;
+    const cookie = req.headers.cookie
+    const token = cookie.split('=')[1]
+    if(!token){
+        return res.status(400).json({
+            status: 'fail',
+            message: 'unauthorized!'
+        })
+    }
+    if(project_id == "" || typeof project_id == "undefined") {
+        return res
+        .status(404).json({status: "failed", message: "There's nothing to be requested in the body data!"});
+    };
+    const result = await projectsTable.findOne({where: {project_id}});
+    if(!result) {
+        return res
+        .status(404).json({status: "failed", message: "There's no project with that id!"});
+    }
+    if(result.project_name == project_name ||result.project_desc == project_desc || result.project_category === project_category) {
+        return res
+        .status(404).json({status: "failed", message: "There's nothing to be updated in the body data!"});
+    }
+    await projectsTable.update({
+        project_name,
+        project_desc,
+        deadline,
+        project_category,
+    },{where:{project_id}})
+    return res.status(200).json({
+        status : 'success',
+        message: 'success update project!'
+    })
+} catch (error) {
+        
+}
+}
+
+exports.getAllProject = async (req,res) =>{
+    try {
+            const project = await projectsTable.findAll({order: [["createdAt","DESC"]],attributes:["project_id","user_id","project_name","project_desc","deadline","project_category"]});
+            if(project){
+                return res.status(200)
+                .json({
+                    status: 'success',
+                    message: 'success get all project',
+                    result: {
+                        project
+                    }
+                })
+            }
+    } catch (error) {
+        if(error){
+            return res.status(500).json({
+                status: 'fail',
+                message: 'Internal server error'
+              });
+        }
+    }
+}
 // HANDLER FOR ACTIVE PROJECTS
 

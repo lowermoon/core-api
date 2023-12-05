@@ -49,6 +49,7 @@ router.get('/verify',(req,res)=>{
           status: 'success',
           message: 'See You Later Nerd'})
   })
+  router.get('/allProject',projects.getAllProject)
   
   
   
@@ -63,10 +64,12 @@ router.get('/verify',(req,res)=>{
   router.post('/forget/verify/new', resetPassword.enterNewPassword)
   router.post('/addSkill',profile.addSkill);
   router.post('/newProject',projects.newProjectHandler)
-  router.post('/deleteProject',projects.deleteProjectsHandler)
+  // router.post('/deleteProject',projects.deleteProjectsHandler)
   router.get('/skills/get',profile.getSkills)
   
-  
+  router.put('/updateProject',projects.updateProjectsHandler)
+
+  router.delete('/deleteProject', projects.deleteProjectsHandler)
   
 
 
