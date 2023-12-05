@@ -6,16 +6,16 @@ const projectsTable = require('../models/tables/projectsTable')
 
 
 // CREATE READ UPDATE DELETE FOR PROJECTS TABLE
-exports.newProjectHandler = async (req, res) => {
+exports.newProjectHandler = async (req, res) => {x
     try {
         const cookie = await req.headers.cookie;
-        const verifyToken = cookie.split('=')[1];
         if (!cookie) {
           return res.status(402).json({
             status: 'fail',
             message: 'unauthorized!'
           });
         }
+        const verifyToken = cookie.split('=')[1];
         jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
             if (err) {
               return res.redirect('/');
@@ -117,6 +117,12 @@ exports.deleteProjectsHandler = async (req, res) => {
 exports.updateProjectsHandler = async (req, res) => {
     try {
     const cookie = req.headers.cookie
+    if(!cookie){
+        return res.status(400).json({
+            status: 'fail',
+            message: 'there is no cookie there!'
+        })
+    }
     const verifyToken = cookie.split('=')[1]
     if(!verifyToken){  
         return res.status(400).json({
@@ -139,7 +145,7 @@ exports.updateProjectsHandler = async (req, res) => {
             return res
             .status(404).json({status: "failed", message: "There's no project with that id!"});
         }
-        if(result.user_id !== user.user_id){
+        if(result.user_id !== user.consumerId){
             return res.status(404).json({
                 status: 'fail',
                 message: 'u cannot access this!'
@@ -166,7 +172,11 @@ exports.updateProjectsHandler = async (req, res) => {
     })
     
 } catch (error) {
-        
+    console.error(error);
+    return res.status(500).json({
+        status: 'fail',
+        message: 'Internal server error'
+    })
 }
 }
 
@@ -193,4 +203,3 @@ exports.getAllProject = async (req,res) =>{
     }
 }
 // HANDLER FOR ACTIVE PROJECTS
-
