@@ -2,7 +2,8 @@ const { newProject, deleteProject, searchProjectsAll, searchProjectsFilter } = r
 const usersTable = require('../models/tables/usersTable')
 const freelancerTable = require('../models/tables/freelancerTable')
 const jwt = require('jsonwebtoken')
-const projectsTable = require('../models/tables/projectsTable')
+const projectsTable = require('../models/tables/projectsTable');
+const offerProjects = require("../models/functions/offerFunction");
 
 
 // CREATE READ UPDATE DELETE FOR PROJECTS TABLE
@@ -199,6 +200,105 @@ exports.getAllProject = async (req,res) =>{
                 status: 'fail',
                 message: 'Internal server error'
               });
+        }
+    }
+}
+
+exports.getProjectById = async (req,res) =>{
+    try {
+        const project_id = req.params.project_id
+        const project = await projectsTable.findOne({where: {project_id},attributes:["project_id","user_id","project_name","project_desc","deadline","project_category"]});
+        if(project){
+            return res.status(200)
+            .json({
+                status: 'success',
+                message: 'success get project',
+                result: {
+                    project
+                }
+            })
+        }
+    } catch (error) {
+        return res.status(500).json({
+            status: 'fail',
+            message: 'Internal server error'
+        })   
+    }
+}
+
+exports.offerProject = async(req,res)=>{
+    try {
+        const cookie = req.headers.cookie
+        if(!cookie){
+            return res.status(400).json({
+                status: 'fail',
+                message: 'there is no cookie there!'
+            })
+        }
+        const verifyToken = cookie.split('=')[1]
+        if(!verifyToken){  
+            return res.status(400).json({
+                status: 'fail',
+                message: 'unauthorized!'
+            })
+        }
+        const {offer_price,offer_desc} = req.body
+        const project_id = req.params.project_id
+        const project = await projectsTable.findOne({where: {project_id}})
+        if(!project){
+            return res.status(404).json({
+                status: 'fail',
+                message: 'project not found!'
+            })
+        }
+        jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
+            if(err){
+                return res.status(404).json({
+                    status: 'fail',
+                    message: err
+                })
+            }  
+            const username = decoded.username
+            const freelancer = await freelancerTable.findOne({where: {username}})
+            const user_id = project.user_id
+            if(!freelancer){
+                return res.status(404).json({
+                    status: 'fail',
+                    message: 'u cannot access this!'
+                })
+            }
+            const freelancerId = freelancer.freelancer_id
+            await offerProjects(
+                project_id,
+                user_id,
+                offer_price,
+                offer_desc,
+                freelancerId
+                )
+            return res.status(200).json({
+                status: 'success',
+                message: 'success offer project'
+            })  
+
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: 'fail',
+            message: 'Internal server error', error
+        })
+    }    
+}
+
+
+exports.acceptProject = async(req,res)=>{
+    try {
+        
+    } catch (error) {
+        if(error){
+            return res.status(500).json({
+                status: 'fail',
+                message: 'Internal server error' + error
+            })
         }
     }
 }

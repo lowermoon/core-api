@@ -51,7 +51,7 @@ router.get('/verify',(req,res)=>{
           message: 'See You Later Nerd'})
   })
   router.get('/allProject',projects.getAllProject)
-  
+  router.get('/project/:project_id',projects.getProjectById)
   
   
   //  ============================= POST ROUTER ========================================== //
@@ -67,6 +67,7 @@ router.get('/verify',(req,res)=>{
   router.post('/addSkill',profile.addSkill);
   router.post('/newProject',projects.newProjectHandler)
   // router.post('/deleteProject',projects.deleteProjectsHandler)
+  router.post('/offerProject/:project_id',projects.offerProject)
   router.get('/skills/get',profile.getSkills)
   
   router.put('/updateProject',projects.updateProjectsHandler)
