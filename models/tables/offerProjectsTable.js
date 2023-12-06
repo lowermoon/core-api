@@ -8,6 +8,9 @@ const offerProjectsTable = db.define('offerProjects', {
     user_id: {
         type: DataTypes.STRING
     },
+    freelancerName: {
+        type: DataTypes.STRING
+    },
     offer_price: {
         type: DataTypes.INTEGER
     },

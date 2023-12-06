@@ -52,6 +52,7 @@ router.get('/verify',(req,res)=>{
   })
   router.get('/allProject',projects.getAllProject)
   router.get('/project/:project_id',projects.getProjectById)
+  router.get('/allOffer/:project_id',projects.getAllOffer)
   
   
   //  ============================= POST ROUTER ========================================== //

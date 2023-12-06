@@ -3,7 +3,7 @@ const usersTable = require('../models/tables/usersTable')
 const freelancerTable = require('../models/tables/freelancerTable')
 const jwt = require('jsonwebtoken')
 const projectsTable = require('../models/tables/projectsTable');
-const offerProjects = require("../models/functions/offerFunction");
+const { offerProjects, allOfferProjects } = require("../models/functions/offerFunction");
 
 
 // CREATE READ UPDATE DELETE FOR PROJECTS TABLE
@@ -267,10 +267,12 @@ exports.offerProject = async(req,res)=>{
                     message: 'u cannot access this!'
                 })
             }
+            const freelancerName = freelancer.username
             const freelancerId = freelancer.freelancer_id
             await offerProjects(
                 project_id,
                 user_id,
+                freelancerName,
                 offer_price,
                 offer_desc,
                 freelancerId
@@ -289,6 +291,43 @@ exports.offerProject = async(req,res)=>{
     }    
 }
 
+exports.getAllOffer = async(req,res)=>{
+    try {
+        const cookie = req.headers.cookie
+        const project_id = req.params.project_id
+        if(!cookie){
+            return res.status(400).json({
+                status: 'fail',
+                message: 'there is no cookie there!'
+            })
+        }
+        const verifyToken = cookie.split('=')[1]
+        if(!verifyToken){  
+            return res.status(400).json({
+                status: 'fail',
+                message: 'unauthorized!'
+            })
+        }
+        const project = await allOfferProjects(project_id)
+
+        if(!project){
+            return res.status(404).json({
+                status: 'fail',
+                message: 'project not found!'
+            })
+        }
+        const freelanceName = project.id
+        return res.status(200).json({
+            status: 'success',
+            message: 'success get all offer',
+            result: {
+                project
+            }
+        })
+    } catch (error) {
+        throw error   
+    }
+}
 
 exports.acceptProject = async(req,res)=>{
     try {
