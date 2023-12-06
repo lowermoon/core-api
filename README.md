@@ -8,7 +8,6 @@ API For SkillShift.
 - [Environment Variables](#environment-variables)
 - [Run the Application](#run-the-application)
 - [Contribution](#contribution)
-- [Issues](#issues)
 
   ## How to Install
 
@@ -18,12 +17,20 @@ API For SkillShift.
    ```
    
    **Install Dependencies:**
-```bash
+    ```bash
     npm install 
+    ```
+
+## Environment Variables
+
+Create a .env file in the root of your project and add the following variables:
+
+env
+```bash
+JWT_TOKEN=your_jwt_token
 ```
 
 ```Replace your_jwt_token, your_email, and your_password with your actual values.```
-
   ## Run the Application
 <p>To start the application, run:</p>
 
