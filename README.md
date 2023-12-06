@@ -13,7 +13,7 @@ API For SkillShift.
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/personal-project-api-todo.git
+   git clone https://github.com/lowermoon/core-api.git
    ```
    
    **Install Dependencies:**
