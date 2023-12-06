@@ -310,7 +310,7 @@ exports.uploadPhotoProfile = async (req, res) => {
   // Checking the file if it is uploaded or not
   const file = req.file;
   if(!file) {
-    return res.send({ message: "tidak ada file"})
+    return res.status(404).send({ message: "tidak ada file"})
   }
 
   const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg'];
