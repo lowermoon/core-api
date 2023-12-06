@@ -12,14 +12,14 @@ API For SkillShift.
 ## How to Install
 
 1. **Clone the Repository:**
-   ```bash
-   git clone https://github.com/lowermoon/core-api.git
-   ```
+```bash
+git clone https://github.com/lowermoon/core-api.git
+```
    
    **Install Dependencies:**
-    ```bash
-    npm install 
-    ```
+```bash
+npm install 
+```
 
 ## Environment Variables
 
