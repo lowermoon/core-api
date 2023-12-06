@@ -1,5 +1,6 @@
 const express = require('express');
 const { adminLoginHandler, adminLoginView } = require('../controller/controlpanel');
+const moment = require('moment')
 
 const controlpanel_api = express.Router()
 
@@ -25,8 +26,9 @@ const controlpanel_api = express.Router()
 })
 
 .get('/test', (req, res) => {
+    const date = moment.tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss');
     return res
-    .render('control/tester/test');
+    .send({message: date})
 })  
 
 

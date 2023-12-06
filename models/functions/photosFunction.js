@@ -13,3 +13,12 @@ exports.updatePhoto = async (usersId, imgUrl) => {
         return error;
     }
 }
+
+exports.getPhoto = async (usersId) => {
+    try{
+        const photo = await photosTable.findOne({where: {usersId}});
+        return photo;
+    }catch(error){
+        return error;
+    }
+}
