@@ -313,6 +313,11 @@ exports.uploadPhotoProfile = async (req, res) => {
     return res.send({ message: "tidak ada file"})
   }
 
+  const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg'];
+  if (!allowedTypes.includes(file.mimetype)) {
+    return res.status(400).send({ message: "Invalid file type. Only jpeg, png, and jpg files are allowed" });
+  }
+
   // Verify JWT
   jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (error, decoded) => {
     if (error) {
