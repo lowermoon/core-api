@@ -1,16 +1,17 @@
 const express = require ('express')
 const auth = require('../controller/auth.js')
 const verify = require('../middleware/verifyToken.js');
-const  profile  = require('../controller/profile.js');
+const profile  = require('../controller/profile.js');
 const jwt = require('jsonwebtoken')
 
 const  resetPassword  = require('../controller/resetPassword.js');
 const freelancerTable = require('../models/tables/freelancerTable.js');
 const usersTable = require('../models/tables/usersTable.js');
-const projects = require('../controller/projects.js')
+const projects = require('../controller/projects.js');
+const { uploadFile } = require('../config/googleStorage.js');
 const router = express.Router();
 
-//  ============================= GET ROUTER ========================================== //
+// ============================= GET ROUTER ========================================== //
 
 
 router.get('/', async (req, res) => {
@@ -59,6 +60,7 @@ router.get('/verify',(req,res)=>{
   router.post('/verifyUser',auth.verify)
   router.post('/login', auth.login)
   router.all('/profile/edit',profile.updateProfile);
+  router.post('/profile/uploadphoto', uploadFile.single('file'), profile.uploadPhotoProfile);
   router.post('/forget',resetPassword.forgetPassword);
   router.post('/forget/verify', resetPassword.verifyCode)
   router.post('/forget/verify/new', resetPassword.enterNewPassword)
@@ -73,4 +75,4 @@ router.get('/verify',(req,res)=>{
   
 
 
-module.exports =router;
+module.exports = router;

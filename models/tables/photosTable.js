@@ -2,10 +2,18 @@ const { DataTypes } = require("sequelize");
 const db = require("../../dbconfig");
 
 const photosTable = db.define('photos', {
-    fotoImg: {
-        type: DataTypes.STRING
+    usersId: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    imgUrl: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: 'https://storage.googleapis.com/skillshift-bucket/photos/defaultProfilePhoto.jpg'
     }
 });
+    
+
 
 photosTable.sync().then(() => {
     console.log('Photos table is synced!')
