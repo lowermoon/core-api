@@ -1,10 +1,8 @@
 const { DataTypes, Sequelize } = require("sequelize");
 const db = require("../../dbconfig/index");
-const moment = require('moment-timezone');
 
-function currentTime () {
-    return moment().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss')
-}
+
+
 
 const loggedRecords = db.define('loggedRecords',{
     nomor: {
@@ -19,8 +17,7 @@ const loggedRecords = db.define('loggedRecords',{
         type: DataTypes.STRING,
     },
     loggedRecord: {
-        type: DataTypes.DATE,
-        defaultValue: currentTime()
+        type: DataTypes.STRING,
     }, 
 },
 {

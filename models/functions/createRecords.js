@@ -1,7 +1,8 @@
 const loggedRecord = require('../tables/loggedRecords');
 const moment = require('moment-timezone');
 
-let date = moment().tz("2023-12-06 0:34", "Asia/Jakarta")
+let date = moment.tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss")
+console.log(date)
 
 const createRecords = async function (ID,role){
     loggedRecord.create({
