@@ -15,6 +15,8 @@ const skillsTables = require('../models/tables/skills')
 const {createUser,findUser,updateUser} = require('../models/functions/usersFunction');
 const {createFreelancer,updateFreelancer,findFreelancer} = require('../models/functions/freelancerFunction');
 const createSkills = require('../models/functions/createSkills')
+const multer = require('multer')
+const { uploadPhoto } = require('../models/functions/uploadFunction')
 
 exports.profileUsers = async(req,res)=>{
   const { username } = req.params;
@@ -293,26 +295,79 @@ exports.getSkills = async(req,res)=>{
 }
 
 exports.uploadPhotoProfile = async (req, res) => {
-  try {
-    // Check Cookie
-    const cookie = await req.headers.cookie
-    const verifyToken = cookie.split('=')[1]
-    if(!cookie){
-      return res.status(402)
-      .json({
+  // Checking Cookie
+  const {cookie} = await req.headers;
+  const verifyToken = cookie.split('=')[1];
+
+  if(!verifyToken){
+    return res.status(402)
+    .json({
+      status: 'fail',
+      message: 'Unauthorized! You need to login first'
+    })
+  }
+
+  // Checking the file if it is uploaded or not
+  const file = req.file;
+  if(!file) {
+    return res.send({ message: "tidak ada file"})
+  }
+
+  // Verify JWT
+  jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (error, decoded) => {
+    if (error) {
+      return res.status(402).json({
         status: 'fail',
-        message: 'unauthorized!'
+        message: 'Unauthorized! It seems like you are not logged in, please log in first!'
       })
     }
 
-    // Decrypt JWT Token
-     jwt.verify(verifyToken, proccess.env.ACCESS_TOKEN_SECRET, async (error, decoded) => {
-      return res.send({message: decoded});
-    })
-  } catch (error) {
-    return res.status(400).json({
-      status: 'failed',
-      message: error
-    })
-  }
+    // Checking the role of the users
+    const username = decoded.username;
+    const user = await usersTable.findOne({ where: { username } });
+    const freelancer = await freelancerTable.findOne({ where: { username } });
+
+    // Make upload based on the role;
+    if (user) {
+      const role = 'users';
+      const fileName = `photos_${role}_${user.consumerId}`;
+      uploadPhoto({ target: role, fileName: fileName, file: file })
+      .then(response => {
+        const {publicUrl} = response;
+        return res.status(200).json({
+          status: 'success',
+          message: 'Photo successfully uploaded!',
+          data: {
+            imageUrl: publicUrl
+          }
+        })
+      }).catch(error => {
+        return res.status(400).json({
+          status: 'fail',
+          message: error.message
+        });
+      })
+    }
+
+    if(freelancer) {
+      const role = 'freelancers';
+      const fileName = `photos_${role}_${user.freelancerId}`;
+      uploadPhoto({ target: role, fileName: fileName, file: file })
+      .then(response => {
+        const {publicUrl} = response;
+        return res.status(200).json({
+          status: 'success',
+          message: 'Photo successfully uploaded!',
+          data: {
+            imageUrl: publicUrl
+          }
+        })
+      }).catch(error => {
+        return res.status(400).json({
+          status: 'fail',
+          message: error.message
+        });
+      })
+    }
+  })
 }
