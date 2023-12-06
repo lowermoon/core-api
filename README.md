@@ -9,7 +9,7 @@ API For SkillShift.
 - [Run the Application](#run-the-application)
 - [Contribution](#contribution)
 
-  ## How to Install
+## How to Install
 
 1. **Clone the Repository:**
    ```bash
