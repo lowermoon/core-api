@@ -38,7 +38,7 @@ JWT_TOKEN=your_jwt_token
 npm run start
 ```
 
-```This will start the application, and you can access it at http://localhost:3000.``` 
+```This will start the application, and you can access it at http://localhost:7000.``` 
 
 ## Contribution
 
