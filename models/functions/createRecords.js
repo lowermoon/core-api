@@ -7,7 +7,7 @@ const createRecords = async function (ID,role){
     loggedRecord.create({
         ID,
         role:role,
-        loggedRecord: "2023-12-06"
+        loggedRecord: date
     })
 }
 
