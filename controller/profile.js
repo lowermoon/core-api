@@ -356,7 +356,7 @@ exports.uploadPhotoProfile = async (req, res) => {
 
     if(freelancer) {
       const role = 'freelancers';
-      const fileName = `photos_${role}_${user.freelancerId}`;
+      const fileName = `photos_${role}_${freelancer.freelancer_id}`;
       uploadPhoto({ target: role, fileName: fileName, file: file })
       .then(response => {
         const {publicUrl} = response;
