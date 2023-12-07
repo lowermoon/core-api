@@ -27,6 +27,12 @@ const offerProjects = async (
 const allOfferProjects = async (project_id) => {
     try {
         const offerProjects = await offerProjectsTable.findAll({attributes: ['freelancerName','offer_price','offer_desc'],where: {project_id}});
+        if(!offerProjects){
+          return res.status(404).json({
+              status: 'fail',
+              message: 'project not found!'
+          })
+      }
         return offerProjects;
     } catch (error) {
         throw error;

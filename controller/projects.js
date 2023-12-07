@@ -7,7 +7,7 @@ const { offerProjects, allOfferProjects } = require("../models/functions/offerFu
 
 
 // CREATE READ UPDATE DELETE FOR PROJECTS TABLE
-exports.newProjectHandler = async (req, res) => {x
+exports.newProjectHandler = async (req, res) => {
     try {
         const cookie = await req.headers.cookie;
         if (!cookie) {
@@ -244,6 +244,7 @@ exports.offerProject = async(req,res)=>{
         }
         const {offer_price,offer_desc} = req.body
         const project_id = req.params.project_id
+        
         const project = await projectsTable.findOne({where: {project_id}})
         if(!project){
             return res.status(404).json({
@@ -294,11 +295,18 @@ exports.offerProject = async(req,res)=>{
 exports.getAllOffer = async(req,res)=>{
     try {
         const cookie = req.headers.cookie
-        const project_id = req.params.project_id
         if(!cookie){
             return res.status(400).json({
                 status: 'fail',
                 message: 'there is no cookie there!'
+            })
+        }
+        const project_id = req.params.project_id     
+        const findProject = await projectsTable.findOne({where: {project_id}})
+        if(!findProject){
+            return res.status(404).json({
+                status: 'fail',
+                message: 'project not found!'
             })
         }
         const verifyToken = cookie.split('=')[1]
@@ -309,14 +317,13 @@ exports.getAllOffer = async(req,res)=>{
             })
         }
         const project = await allOfferProjects(project_id)
-
-        if(!project){
-            return res.status(404).json({
-                status: 'fail',
-                message: 'project not found!'
+        if(project.length === 0){
+            return res.status(200).json({
+                status: 'success',
+                message: 'success get all offer',
+                result: 'no offer'
             })
         }
-        const freelanceName = project.id
         return res.status(200).json({
             status: 'success',
             message: 'success get all offer',
@@ -331,7 +338,65 @@ exports.getAllOffer = async(req,res)=>{
 
 exports.acceptProject = async(req,res)=>{
     try {
-        
+        const cookie = req.headers.cookie
+        if(!cookie){
+            return res.status(400).json({
+                status: 'fail',
+                message: 'there is no cookie there!'
+            })
+        }
+        const project_id = req.query.project_id
+        const freelancer_id = req.query.freelancer_id
+        if(!project_id || !freelancer_id){
+            return res.status(400).json({
+                status: 'fail',
+                message: 'there is no cookie there!'
+            })
+        }
+        const verifyToken = cookie.split('=')[1]
+        if(!verifyToken){  
+            return res.status(400).json({
+                status: 'fail',
+                message: 'unauthorized!'
+            })
+        }
+        const project = await projectsTable.findOne({where: {project_id}})
+        if(!project){
+            return res.status(404).json({
+                status: 'fail',
+                message: 'project not found!'
+            })
+        }
+        jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
+            if(err){
+                return res.status(404).json({
+                    status: 'fail',
+                    message: err
+                })
+            }  
+            const username = decoded.username
+            const user = await usersTable.findOne({where: {username}})
+            const user_id = user.consumerId
+            if(!user){
+                return res.status(404).json({
+                    status: 'fail',
+                    message: 'u cannot access this!'
+                })
+            }
+            if(user_id !== project.user_id){
+                return res.status(404).json({
+                    status: 'fail',
+                    message: 'u cannot access this!'
+                })
+            }
+            await projectsTable.update({
+                freelancer_id
+            },{where:{project_id}})
+            return res.status(200).json({
+                status: 'success',
+                message: 'success accept project'
+            })  
+        })
     } catch (error) {
         if(error){
             return res.status(500).json({
