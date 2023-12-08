@@ -59,7 +59,7 @@ router.get('/verify',(req,res)=>{
   
   router.post('/register',auth.register)
   router.post('/verifyUser',auth.verify)
-  router.post('/login', auth.login)
+  router.post('/loginUsers', auth.loginUsers)
   router.all('/profile/edit',profile.updateProfile);
   router.post('/profile/uploadphoto', uploadFile.single('file'), profile.uploadPhotoProfile);
   router.post('/forget',resetPassword.forgetPassword);
