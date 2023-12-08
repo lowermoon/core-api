@@ -1,5 +1,6 @@
 const express = require ('express')
 const auth = require('../controller/auth.js')
+const authFreelancer = require('../controller/freelancerAuth.js')
 const verify = require('../middleware/verifyToken.js');
 const profile  = require('../controller/profile.js');
 const jwt = require('jsonwebtoken')
@@ -57,9 +58,19 @@ router.get('/verify',(req,res)=>{
   
   //  ============================= POST ROUTER ========================================== //
   
+
+  // router buyer
+  router.post('/loginUsers', auth.loginUsers)
   router.post('/register',auth.register)
   router.post('/verifyUser',auth.verify)
-  router.post('/loginUsers', auth.loginUsers)
+
+
+// router freelancer
+  router.post('/loginFreelancer', authFreelancer.loginFreelancer)
+  router.post('/registerFreelancer',authFreelancer.register)
+  router.post('/verifyFreelancer',authFreelancer.verify)
+
+
   router.all('/profile/edit',profile.updateProfile);
   router.post('/profile/uploadphoto', uploadFile.single('file'), profile.uploadPhotoProfile);
   router.post('/forget',resetPassword.forgetPassword);

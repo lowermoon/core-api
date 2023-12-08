@@ -25,7 +25,7 @@ const  {mailOptions,transporter}  = require('../middleware/email');
 //login 
 exports.loginUsers = async(req,res)=>{
   try{
-    const {username, email,password,options}=req.body
+    const {username, email,password}=req.body
 
     const user = await findUser(username,password);
     const freelancer = await findFreelancer(username,password)
@@ -62,30 +62,6 @@ exports.loginUsers = async(req,res)=>{
         }
       });  
     }
-    //checking if Freelancer
-
-    if(freelancer){
-        const ID = freelancer.freelancer_id
-        const role = "freelancer"
-        const token = jwt.sign({username},process.env.ACCESS_TOKEN_SECRET,{expiresIn: '1h'})
-        createRecords(ID,role)
-        return res.cookie('verifyToken',token,{
-          httpOnly: true,
-          maxAge: 24*60*60*1000,
-          secure: true  
-        })
-        .status(201).setHeader('Content-Type', 'application/json') 
-        // sending the data to the FE
-        .json({
-          fullName: freelancer.name,
-          username: freelancer.username,
-          email: freelancer.email,
-          role : "freelancer",
-          EXP: freelancer.experiencePoint,
-          level: freelancer.level, 
-          token: token
-        });  
-      }
       // if wrong username / password
     res.status(402).json({
       status: 'fail',
@@ -108,7 +84,7 @@ exports.verify = async (req,res) => {
     return res.json({status: 'fail',message: 'fail'});
   }
   const data = cookie.split('=')[1];
-  await jwt.verify(data, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
+  jwt.verify(data, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
   if(err){
     return res.status(404)
     .json({
@@ -127,7 +103,6 @@ exports.verify = async (req,res) => {
     })
   }
   if(parsedUserVerificationCode === parsedVerificationCode){
-    if(dataStorage.options == "consumer"){
       const consumerId = 'consumer_'+nanoid(20)
       createUser(
         consumerId,
@@ -143,31 +118,8 @@ exports.verify = async (req,res) => {
             fullName: dataStorage.fullName,
             username: dataStorage.username,
             email: dataStorage.email,
-            role: "consumer",
           }
         })
-      }
-      if(dataStorage.options == "freelancer"){
-        const freelancer_id = 'freelancer_'+nanoid(20)
-        createFreelancer(
-          freelancer_id,
-          dataStorage.fullName,
-          dataStorage.username,
-          dataStorage.email,
-          dataStorage.password
-          )
-          return res.status(201).json({
-            status: 'success',
-            message: 'register successfully',
-            data:{
-              fullName: dataStorage.fullName,
-              username: dataStorage.username,
-              email : dataStorage.email,
-              role: "freelancer",
-            }
-          });
-
-        }
       }
         return res.json({
           status: 'fail',
@@ -181,17 +133,15 @@ exports.verify = async (req,res) => {
         })
       }
     }
-        
-
+     
         exports.register = async (req,res)=>{
           try{
-          const {fullName,username ,email,password,options}= req.body
+          const {fullName,username ,email,password}= req.body
           const dataStorage = {
             fullName : req.body.fullName,
             username : req.body.username,
             email : req.body.email,
             password : req.body.password,
-            options: req.body.options
           }; //save what user input into "data storage"
           const verificationCode = Math.floor(10000 + Math.random() * 90000); //for verification code
           const saveData = await jwt.sign({ dataStorage,verificationCode }, process.env.ACCESS_TOKEN_SECRET,{expiresIn: '120s'}); //save data storage and verification code into jwt with name "save data"
@@ -201,41 +151,20 @@ exports.verify = async (req,res) => {
             secure: true,
             sameSite: 'none'
           })
-          const usernameCheck = await usernameConsumer(username) //checking username Users
-          const usernameCheckF = await usernameFreelancer(username)
-          const emailCheck= await emailConsumer(email) //then if username is not taken , then checking email if already taken then status fail
-          const emailCheckF= await emailFreelancer(email) //if username is not taken , then checking email is already taken or not , if taken then status fail
-
-      if(options == 'consumer'){ //if options "consumer"
-        if (usernameCheck.length > 0 || usernameCheckF.length > 0) { //checking username if already taken then status fail
+        const usernameCheck = await usernameConsumer(username) //checking username Users
+        const emailCheck= await emailConsumer(email) //then if username is not taken , then checking email if already taken then status fail        
+        if (usernameCheck.length > 0) { //checking username if already taken then status fail
           return res.status(401).json({
             status: 'fail',
             message: 'username already taken!' 
           });
         }
-        if(emailCheck.length > 0 || emailCheckF.length > 0){
+        if(emailCheck.length > 0){
           return res.status(401).json({
             status: 'fail',
             message: 'email already taken!'
           })
         }
-
-      }
-      if(options == 'freelancer'){ //if option "consumer"
-        if (usernameCheckF.length > 0 || usernameCheck.length > 0) { //checking username if already taken then status fail
-          return res.status(401).json({ 
-            status: 'fail',
-            message: 'username already taken!'
-          });
-        }
-        if(emailCheckF.length > 0 || emailCheck.length > 0){
-          return res.status(401).json({
-            status: 'fail',
-            message: 'email already taken!'
-          })
-        }
-      }
-
       // sending to mailOptions Function
        transporter.sendMail(await mailOptions(email,username,verificationCode),  (error, info) => {
         if (error) {
@@ -248,17 +177,12 @@ exports.verify = async (req,res) => {
       });
         return res.status(202).json({
           status: 'success',
-          message: '',
+          message: 'success register!',
           data:{
             username: username,
             code : verificationCode,
-            role: options,
             token: saveData
-          }
-  
-  
-  
-        
+          }  
         }); 
   }catch(err){
     res.status(505).json({

@@ -38,6 +38,22 @@ const findFreelancer = async function(username, password) {
     }
 };
 
+const loginEmail = async function(email,password) {
+    try {
+        const user = await freelancerTable.findOne({ where: { email } });
+        if (user) {
+            const result = bcrypt.compareSync(password, user.password);
+            if (result) {
+                return user;
+            }
+        } else {
+            return user;
+        }
+    } catch (error) {
+        console.log(`Error Finding users:`, error);
+        throw error;
+    }
+}
 const usernameFreelancer = async function(username){
     try{
         const user = await freelancerTable.findAll({where: {username}});
