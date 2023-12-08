@@ -68,8 +68,12 @@ router.get('/verify',(req,res)=>{
   router.post('/forget/verify', resetPassword.verifyCode)
   router.post('/forget/verify/new', resetPassword.enterNewPassword)
 
+  //router project
+  router.post('/newProject',projects.newProjectHandler)
+  router.put('/updateProject',projects.updateProjectsHandler)
+  router.delete('/deleteProject', projects.deleteProjectsHandler)
 
-// router freelancer
+  // router freelancer
   router.post('/loginFreelancer', authFreelancer.loginFreelancer)
   router.post('/registerFreelancer',authFreelancer.register)
   router.post('/verifyFreelancer',authFreelancer.verify)
@@ -77,18 +81,21 @@ router.get('/verify',(req,res)=>{
   router.post('/forgetFreelancer/verifyFL', freelancerResetPassword.verifyCode)
   router.post('/forgetFreelancer/verifyFL/new', freelancerResetPassword.enterNewPassword)
 
-
-  router.all('/profile/edit',profile.updateProfile);
-  router.post('/profile/uploadphoto', uploadFile.single('file'), profile.uploadPhotoProfile);
+  //router skills
   router.post('/addSkill',profile.addSkill);
-  router.post('/newProject',projects.newProjectHandler)
-  // router.post('/deleteProject',projects.deleteProjectsHandler)
-  router.post('/offerProject/:project_id',projects.offerProject)
   router.get('/skills/get',profile.getSkills)
-  
-  router.put('/updateProject',projects.updateProjectsHandler)
 
-  router.delete('/deleteProject', projects.deleteProjectsHandler)
+  //router edit profile
+  router.all('/profile/edit',profile.updateProfile);
+
+  router.post('/profile/uploadphoto', uploadFile.single('file'), profile.uploadPhotoProfile);
+  
+  // router.post('/deleteProject',projects.deleteProjectsHandler)
+  
+  //offer project
+  router.post('/offerProject/:project_id',projects.offerProject)
+
+  
   
 
 
