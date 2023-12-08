@@ -23,7 +23,7 @@ const  {mailOptions,transporter}  = require('../middleware/email');
 
 
 //login 
-exports.login = async(req,res)=>{
+exports.loginUsers = async(req,res)=>{
   try{
     const {username, email,password,options}=req.body
 
