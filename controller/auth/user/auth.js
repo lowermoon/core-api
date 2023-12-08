@@ -1,6 +1,6 @@
 const {LocalStorage} = require('node-localstorage')
 
-const db = require('../dbconfig/index');
+const db = require('../../../dbconfig/index');
 localStorage = new LocalStorage('./scratch');
 
 const dotenv= require('dotenv');
@@ -10,14 +10,14 @@ const { Op } = require('sequelize');
 dotenv.config();
 
 // Tables
-const usersTable = require('../models/tables/usersTable');
-const freelancerTable = require('../models/tables/freelancerTable');
+const usersTable = require('../../../models/tables/usersTable');
+const freelancerTable = require('../../../models/tables/freelancerTable');
 
 // Functions
-const {createUser,findUser, usernameConsumer, emailConsumer} = require('../models/functions/usersFunction');
-const {createFreelancer,updateFreelancer,findFreelancer, usernameFreelancer, emailFreelancer} = require('../models/functions/freelancerFunction');
-const createRecords  = require('../models/functions/createRecords');
-const  {mailOptions,transporter}  = require('../middleware/email');
+const {createUser,findUser, usernameConsumer, emailConsumer} = require('../../../models/functions/usersFunction');
+const {createFreelancer,updateFreelancer,findFreelancer, usernameFreelancer, emailFreelancer} = require('../../../models/functions/freelancerFunction');
+const createRecords  = require('../../../models/functions/createRecords');
+const  {mailOptions,transporter}  = require('../../../middleware/email');
 
 
 

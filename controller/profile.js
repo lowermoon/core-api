@@ -1,7 +1,7 @@
 const {LocalStorage} = require('node-localstorage')
 const db = require('../dbconfig/index')
 localStorage = new LocalStorage('./scratch')
-const auth = require('./auth')
+const auth = require('./auth/user/auth')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 

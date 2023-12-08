@@ -1,11 +1,12 @@
 const express = require ('express')
-const auth = require('../controller/auth.js')
-const authFreelancer = require('../controller/freelancerAuth.js')
+const auth = require('../controller/auth/user/auth.js')
+const authFreelancer = require('../controller/auth/freelancer/freelancerAuth.js')
 const verify = require('../middleware/verifyToken.js');
 const profile  = require('../controller/profile.js');
 const jwt = require('jsonwebtoken')
 
-const  resetPassword  = require('../controller/resetPassword.js');
+const  resetPassword  = require('../controller/auth/user/resetPassword.js');
+const freelancerResetPassword = require('../controller/auth/freelancer/freelancerForget.js');
 const freelancerTable = require('../models/tables/freelancerTable.js');
 const usersTable = require('../models/tables/usersTable.js');
 const projects = require('../controller/projects.js');
@@ -63,19 +64,22 @@ router.get('/verify',(req,res)=>{
   router.post('/loginUsers', auth.loginUsers)
   router.post('/register',auth.register)
   router.post('/verifyUser',auth.verify)
+  router.post('/forget',resetPassword.forgetPassword);
+  router.post('/forget/verify', resetPassword.verifyCode)
+  router.post('/forget/verify/new', resetPassword.enterNewPassword)
 
 
 // router freelancer
   router.post('/loginFreelancer', authFreelancer.loginFreelancer)
   router.post('/registerFreelancer',authFreelancer.register)
   router.post('/verifyFreelancer',authFreelancer.verify)
+  router.post('/forgetFreelancer', freelancerResetPassword.forgetPassword)
+  router.post('/forgetFreelancer/verifyFL', freelancerResetPassword.verifyCode)
+  router.post('/forgetFreelancer/verifyFL/new', freelancerResetPassword.enterNewPassword)
 
 
   router.all('/profile/edit',profile.updateProfile);
   router.post('/profile/uploadphoto', uploadFile.single('file'), profile.uploadPhotoProfile);
-  router.post('/forget',resetPassword.forgetPassword);
-  router.post('/forget/verify', resetPassword.verifyCode)
-  router.post('/forget/verify/new', resetPassword.enterNewPassword)
   router.post('/addSkill',profile.addSkill);
   router.post('/newProject',projects.newProjectHandler)
   // router.post('/deleteProject',projects.deleteProjectsHandler)
