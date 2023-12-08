@@ -1,5 +1,5 @@
 const {LocalStorage} = require('node-localstorage')
-const db = require('../dbconfig/index')
+const db = require('../../../dbconfig/index')
 localStorage = new LocalStorage('./scratch')
 const nodemailer = require('nodemailer')
 const dotenv= require('dotenv');
@@ -7,16 +7,15 @@ const jwt = require('jsonwebtoken')
 const { nanoid } = require('nanoid') 
 const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
-const usersTable = require('../models/tables/usersTable');
-const freelancerTable = require('../models/tables/freelancerTable');
-const { createUser, findUser, updateUser } = require('../models/functions/usersFunction');
-const { transporter } = require('../middleware/email');
+const usersTable = require('../../../models/tables/usersTable');
+const freelancerTable = require('../../../models/tables/freelancerTable');
+const { createUser, findUser, updateUser } = require('../../../models/functions/usersFunction');
+const { transporter } = require('../../../middleware/email');
 dotenv.config();
 
 exports.forgetPassword = async (req, res) => {
   try{
     const email = req.body.email;
-    const emailFreelancer = await freelancerTable.findOne({ where: { email } });
     const emailConsumer = await usersTable.findOne({ where: { email } });
     const verificationCode = Math.floor(10000 + Math.random() * 90000);
     const emailToken = jwt.sign({ email,verificationCode }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '5m' });
@@ -27,7 +26,7 @@ exports.forgetPassword = async (req, res) => {
     });
 
     // if email not exist!
-    if(!emailFreelancer && !emailConsumer){
+    if(!emailConsumer){
         return res.status(402).json({
             status : 'fail',
             message: 'user tidak ditemukan'
@@ -36,34 +35,7 @@ exports.forgetPassword = async (req, res) => {
 
 
 // if email are for Freelancer
-        if(emailFreelancer){
-
-            let resetMailOptions = {
-                from: '"LowerMoon" uppermoon1404@gmail.com',
-                to: emailFreelancer.email,
-                subject: "Verification Code",
-                text: `Your verification code is ${verificationCode}.`,
-                html: `<b>Your verification code is ${verificationCode}.</b>`,
-            };
-            
-            await transporter.sendMail(resetMailOptions, (error, info) => {
-                if (error) {
-                    console.error("Error sending email:", error);
-                    return res.status(500).send("Error sending email");
-                }
-                console.log("Message sent: %s", info.messageId);
-                
-                return res.json({
-                    email: emailFreelancer.email,
-                    code: verificationCode,
-                    role: 'freelancer'
-                });
-            });
-        }
-
-// if email are for Consumer
         if(emailConsumer){
-     
             let resetMailOptions= {
                 from: '"LowerMoon" uppermoon1404@gmail.com',
                 to: emailConsumer.email,
@@ -171,31 +143,21 @@ exports.forgetPassword = async (req, res) => {
         }
             const email = decoded.email
             const findConsumerEmail = await usersTable.findOne({where: {email} })
-            const findFreelancerEmail = await freelancerTable.findOne({where: {email} })
-        if(findConsumerEmail){
-            const hashedPassword = await bcrypt.hashSync(password,10)
-            findConsumerEmail.update({password:hashedPassword});
-            res.status(202)
-            .json({
-                status: 'success',
-            })
+            if(password !== confirmNewPassword){
+                return res.status(402).json({
+                    status: 'fail',
+                    message: 'password - confirm password tidak sama!'
+                })
             }
-        
-        if(findFreelancerEmail){
-            const hashedPassword = await bcrypt.hashSync(password,10)
-            findFreelancerEmail.update({password: hashedPassword})
-            res.status(202)
-            .json({
-                status: 'success',
-            })
-        }
-        if(password !== confirmNewPassword){
-            return res.status(402).json({
-                status: 'fail',
-                message: 'password - confirm password tidak sama!'
-            })
-        }
-    })
+            if(findConsumerEmail){
+                const hashedPassword = await bcrypt.hashSync(password,10)
+                findConsumerEmail.update({password:hashedPassword});
+                return res.status(202)
+                .json({
+                    status: 'success',
+                })
+            }
+        })
 
 }
 

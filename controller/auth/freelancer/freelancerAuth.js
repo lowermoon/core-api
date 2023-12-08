@@ -2,9 +2,9 @@ const jwt = require('jsonwebtoken')
 const { nanoid } = require('nanoid') 
 const dotenv= require('dotenv');
 
-const {createFreelancer,updateFreelancer,findFreelancer, usernameFreelancer, emailFreelancer} = require('../models/functions/freelancerFunction');
-const createRecords  = require('../models/functions/createRecords');
-const  {mailOptions,transporter}  = require('../middleware/email');
+const {createFreelancer,updateFreelancer,findFreelancer, usernameFreelancer, emailFreelancer} = require('../../../models/functions/freelancerFunction');
+const createRecords  = require('../../../models/functions/createRecords');
+const  {mailOptions,transporter}  = require('../../../middleware/email');
 
 
 dotenv.config();
