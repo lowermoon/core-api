@@ -91,8 +91,9 @@ router.get('/verify',(req,res)=>{
   router.post('/profile/uploadphoto', uploadFile.single('file'), profile.uploadPhotoProfile);
   
   // router.post('/deleteProject',projects.deleteProjectsHandler)
-  
+
   //offer project
+  
   router.post('/offerProject/:project_id',projects.offerProject)
 
   
