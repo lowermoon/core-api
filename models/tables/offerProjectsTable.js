@@ -22,7 +22,7 @@ const offerProjectsTable = db.define('offerProjects', {
     },  
 });
 
-offerProjectsTable.sync().then(() => {
+offerProjectsTable.sync({alter:true}).then(() => {
     console.log('offerProjects table is synchronized!')
 });
 

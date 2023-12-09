@@ -21,5 +21,16 @@ exports.createActiveProjects = async function (
     freelancer_id,
     freelancer_name,
     offer_price,
+    
   });
 };
+
+
+exports.isActive = async (project_id) => {
+  try {
+    const activeProject = await activeProjectsTable.findOne({where: {project_id}},{project_status:'active'});
+    return activeProject;
+  } catch (error) {
+    throw error
+  }
+}

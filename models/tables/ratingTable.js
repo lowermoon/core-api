@@ -15,10 +15,6 @@ const ratingTable = db.define('rating', {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    comment: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
 })
 
 ratingTable.synnc().then(()=>{
