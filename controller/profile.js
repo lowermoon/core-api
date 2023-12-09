@@ -221,13 +221,6 @@ exports.updateProfile = async(req,res)=>{
       const username = decoded.username
       const freelancer = await freelancerTable.findOne({where:{username}})
       const getId = freelancer.freelancer_id
-      console.log(getId)
-      if(!freelancer){
-        return res.status(404).json({
-          status: 'fail',
-          message: 'u are not allowed!'
-        })
-      }  
       createSkills(getId,skills)
       res.status(202).json({
         status: 'success',
@@ -260,19 +253,13 @@ exports.getSkills = async(req,res)=>{
     }
     jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
       if (err) {
-        return res.redirect('/');
+        return res.status(401).json({
+          status: 'fail',
+          message: err
+        });
       }
       const username = decoded.username
       const freelancer = await freelancerTable.findOne({where:{username}})
-      if(!freelancer){
-        return res.status(402).json({
-          status: 'fail',
-          message: 'unauthorized!',
-          data: {
-            data: null
-          }
-        })
-      }
       const freelancerId = freelancer.freelancer_id
       const getSkill = await skillsTables.findAll({attributes: ['freelancerId','skills'],where:{freelancerId}})
       if(getSkill){

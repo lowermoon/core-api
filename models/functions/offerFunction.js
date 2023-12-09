@@ -33,7 +33,17 @@ const allOfferProjects = async (project_id) => {
         throw error;
     }
 }
+
+const findOffer = async (freelancer_id) => {
+  try {
+    const offerProject = await offerProjectsTable.findOne({ where: { freelancerId:freelancer_id } });
+    return offerProject;
+  } catch (error) {
+    throw error
+  }
+}
 module.exports = {
     offerProjects,
-    allOfferProjects
+    allOfferProjects,
+    findOffer
 };
