@@ -3,8 +3,9 @@ const usersTable = require('../models/tables/usersTable')
 const freelancerTable = require('../models/tables/freelancerTable')
 const jwt = require('jsonwebtoken')
 const projectsTable = require('../models/tables/projectsTable');
-const { offerProjects, allOfferProjects, findOffer } = require("../models/functions/offerFunction");
-const { createActiveProjects } = require("../models/functions/activeProjectsFunction");
+const { offerProjects, allOfferProjects, findOffer, alreadyOffer } = require("../models/functions/offerFunction");
+const { createActiveProjects, isActive } = require("../models/functions/activeProjectsFunction");
+const offerProjectsTable = require("../models/tables/offerProjectsTable");
 
 
 // CREATE READ UPDATE DELETE FOR PROJECTS TABLE
@@ -253,6 +254,8 @@ exports.offerProject = async(req,res)=>{
                 message: 'project not found!'
             })
         }
+
+        
         jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
             if(err){
                 return res.status(404).json({
@@ -265,6 +268,20 @@ exports.offerProject = async(req,res)=>{
             const user_id = project.user_id
             const freelancerName = freelancer.username
             const freelancerId = freelancer.freelancer_id
+            const activeProject = await isActive(project_id)
+            if(activeProject){
+            return res.status(406).json({
+                status: 'fail',
+                message: 'project already accepted!'
+            })
+        }
+            const resultOffer = await alreadyOffer(project_id,freelancerId)
+            if(resultOffer){
+                return res.status(406).json({
+                    status: 'fail',
+                    message: 'u already offer this project!'
+                })
+            }
             await offerProjects(
                 project_id,
                 user_id,
@@ -350,6 +367,7 @@ exports.acceptOffer = async(req,res)=>{
                 message: 'project or freelancer not found!'
             })
         }
+        
         const verifyToken = cookie.split('=')[1]
         if(!verifyToken){  
             return res.status(400).json({
@@ -393,6 +411,8 @@ exports.acceptOffer = async(req,res)=>{
                 freelancer_name,
                 offer_price,
             )
+            // await offerProjectsTable.update({status: 'accepted'},
+            //     {where: {project_id}})
             return res.status(200).json({
                 status: 'success',
                 message: 'success accept project',
