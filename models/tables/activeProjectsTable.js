@@ -1,50 +1,48 @@
-const {DataType} = require('sequelize');
+const {DataTypes} = require('sequelize');
 const db = require('../../dbconfig/index');
 
 const activeProjectsTable = db.define('activeProjects', {
     project_id: {
-        type: DataType.INTEGER,
+        type: DataTypes.STRING,
         primaryKey: true,
     },
     user_id: {
-        type: DataType.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
     },
     project_name: {
-        type: DataType.STRING,
+        type: DataTypes.STRING,
         allowNull: false,
     },
     project_desc: {
-        type: DataType.STRING,
-        allowNull: false,
-    },
-    project_price: {
-        type: DataType.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
     },
     project_deadline: {
-        type: DataType.DATE,
+        type: DataTypes.STRING,
         allowNull: false,
     },
     project_status: {
-        type: DataType.STRING,
+        type: DataTypes.STRING,
         allowNull: false,
     },
     freelancer_id: {
-        type: DataType.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
     },
     freelancer_name: {
-        type: DataType.STRING,
+        type: DataTypes.STRING,
         allowNull: false,
+
     },
     offer_price: {
-        type: DataType.INTEGER,
+        type: DataTypes.INTEGER,
         allowNull: false,
+        defaultValue: 0,
     },
 })
 
-activeProjectsTable.sync().then(() => {
+activeProjectsTable.sync({alter:true}).then(() => {
     console.log('activeProjectsTable sync!')
 })
 

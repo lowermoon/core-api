@@ -3,7 +3,8 @@ const usersTable = require('../models/tables/usersTable')
 const freelancerTable = require('../models/tables/freelancerTable')
 const jwt = require('jsonwebtoken')
 const projectsTable = require('../models/tables/projectsTable');
-const { offerProjects, allOfferProjects } = require("../models/functions/offerFunction");
+const { offerProjects, allOfferProjects, findOffer } = require("../models/functions/offerFunction");
+const { createActiveProjects } = require("../models/functions/activeProjectsFunction");
 
 
 // CREATE READ UPDATE DELETE FOR PROJECTS TABLE
@@ -262,12 +263,6 @@ exports.offerProject = async(req,res)=>{
             const username = decoded.username
             const freelancer = await freelancerTable.findOne({where: {username}})
             const user_id = project.user_id
-            if(!freelancer){
-                return res.status(404).json({
-                    status: 'fail',
-                    message: 'u cannot access this!'
-                })
-            }
             const freelancerName = freelancer.username
             const freelancerId = freelancer.freelancer_id
             await offerProjects(
@@ -336,7 +331,7 @@ exports.getAllOffer = async(req,res)=>{
     }
 }
 
-exports.acceptProject = async(req,res)=>{
+exports.acceptOffer = async(req,res)=>{
     try {
         const cookie = req.headers.cookie
         if(!cookie){
@@ -347,10 +342,12 @@ exports.acceptProject = async(req,res)=>{
         }
         const project_id = req.query.project_id
         const freelancer_id = req.query.freelancer_id
-        if(!project_id || !freelancer_id){
-            return res.status(400).json({
+        const findProject = await projectsTable.findOne({where: {project_id}})
+        const findFreelancer = await freelancerTable.findOne({where: {freelancer_id}})
+        if(!findProject || !findFreelancer){
+            return res.status(404).json({
                 status: 'fail',
-                message: 'there is no cookie there!'
+                message: 'project or freelancer not found!'
             })
         }
         const verifyToken = cookie.split('=')[1]
@@ -358,13 +355,6 @@ exports.acceptProject = async(req,res)=>{
             return res.status(400).json({
                 status: 'fail',
                 message: 'unauthorized!'
-            })
-        }
-        const project = await projectsTable.findOne({where: {project_id}})
-        if(!project){
-            return res.status(404).json({
-                status: 'fail',
-                message: 'project not found!'
             })
         }
         jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
@@ -377,24 +367,46 @@ exports.acceptProject = async(req,res)=>{
             const username = decoded.username
             const user = await usersTable.findOne({where: {username}})
             const user_id = user.consumerId
-            if(!user){
+            if(user_id !== findProject.user_id){
                 return res.status(404).json({
                     status: 'fail',
                     message: 'u cannot access this!'
                 })
             }
-            if(user_id !== project.user_id){
-                return res.status(404).json({
-                    status: 'fail',
-                    message: 'u cannot access this!'
-                })
-            }
-            await projectsTable.update({
-                freelancer_id
-            },{where:{project_id}})
+            const offer = await findOffer(freelancer_id)
+            
+            const project_name = findProject.project_name;
+            const offer_price = offer.offer_price;
+            const project_desc = findProject.project_desc;
+            const freelancer_name = offer.freelancerName;
+            const deadline = findProject.deadline;
+            const project_status = 'active'
+            
+            await createActiveProjects(
+                project_id,
+                user_id,
+                project_name,
+                project_desc,
+                deadline,
+                project_status,
+                freelancer_id,
+                freelancer_name,
+                offer_price,
+            )
             return res.status(200).json({
                 status: 'success',
-                message: 'success accept project'
+                message: 'success accept project',
+                result : {
+                    project_id,
+                    user_id,
+                    project_name,
+                    project_desc,
+                    deadline,
+                    project_status,
+                    freelancer_id,
+                    freelancer_name,
+                    offer_price,
+                }
             })  
         })
     } catch (error) {
@@ -406,4 +418,7 @@ exports.acceptProject = async(req,res)=>{
         }
     }
 }
+
+
+
 // HANDLER FOR ACTIVE PROJECTS
