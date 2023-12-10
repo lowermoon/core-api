@@ -103,7 +103,8 @@ router.get('/verify',(req,res)=>{
   
   // query project_id
   router.post('/offerProject',projects.offerProject)
-
+  router.post('/cancelProjectByFreelancer',projects.cancelProjectbyFreelancer)
+  router.post('/cancelProjectByUsers',projects.cancelProjectbyUser)
   
   
 
