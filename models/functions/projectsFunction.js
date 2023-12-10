@@ -83,15 +83,39 @@ const searchProjectsFilter = async (filter, value) => {
     }
 }
 
+const allProject = async () =>{
+    try {
+        const project = projectsTable.findAll({order: [["createdAt","DESC"]],attributes:["project_id","user_id","project_name","project_desc","deadline","project_category"]})
+        if(project){
+            return project;
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
 const updateProjects = async (data) => {
     const { project_name, project_desc, project } = data;
 }
 
+const getProjectById = async (project_id) => {
+    try {
+        const project = await projectsTable.findOne({where: {project_id},attributes:["project_id","user_id","project_name","project_desc","deadline","project_category"]});
+        if(project){
+            return project;
+        }
+    } catch (error) {
+        throw error
+    }
+}
 // 
+
 
 module.exports = {
     newProject,
     deleteProject,
     searchProjectsAll,
-    searchProjectsFilter
+    searchProjectsFilter,
+    allProject,
+    getProjectById,
 }

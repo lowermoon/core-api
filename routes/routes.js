@@ -53,8 +53,14 @@ router.get('/verify',(req,res)=>{
           message: 'See You Later Nerd'})
   })
   router.get('/allProject',projects.getAllProject)
-  router.get('/project/:project_id',projects.getProjectById)
-  router.get('/allOffer/:project_id',projects.getAllOffer)
+
+  // query project_id
+  router.get('/project',projects.getProjectById)
+  
+  // query project_id
+  router.get('/allOffer',projects.getAllOffer)
+
+  // query project_id & freelancer_id
   router.post('/acceptOffer',projects.acceptOffer)
   
   
@@ -95,7 +101,8 @@ router.get('/verify',(req,res)=>{
 
   //offer project
   
-  router.post('/offerProject/:project_id',projects.offerProject)
+  // query project_id
+  router.post('/offerProject',projects.offerProject)
 
   
   
