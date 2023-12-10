@@ -1,4 +1,4 @@
-const { newProject, deleteProject, searchProjectsAll, searchProjectsFilter } = require ("../models/functions/projectsFunction");
+const { newProject, deleteProject, searchProjectsAll, searchProjectsFilter, allProject, getProjectById } = require ("../models/functions/projectsFunction");
 const usersTable = require('../models/tables/usersTable')
 const freelancerTable = require('../models/tables/freelancerTable')
 const jwt = require('jsonwebtoken')
@@ -185,7 +185,7 @@ exports.updateProjectsHandler = async (req, res) => {
 
 exports.getAllProject = async (req,res) =>{
     try {
-            const project = await projectsTable.findAll({order: [["createdAt","DESC"]],attributes:["project_id","user_id","project_name","project_desc","deadline","project_category"]});
+            const project = await allProject();
             if(project){
                 return res.status(200)
                 .json({
@@ -196,6 +196,10 @@ exports.getAllProject = async (req,res) =>{
                     }
                 })
             }
+            return res.status(404).json({
+                status: 'fail',
+                message: 'there is no project!'
+            })
     } catch (error) {
         if(error){
             return res.status(500).json({
@@ -208,8 +212,14 @@ exports.getAllProject = async (req,res) =>{
 
 exports.getProjectById = async (req,res) =>{
     try {
-        const project_id = req.params.project_id
-        const project = await projectsTable.findOne({where: {project_id},attributes:["project_id","user_id","project_name","project_desc","deadline","project_category"]});
+        const project_id = req.query.project_id
+        if(!project_id){
+            return res.status(400).json({
+                status: 'fail',
+                message: 'there is no project id!'
+            })
+        }
+        const project = await getProjectById(project_id);
         if(project){
             return res.status(200)
             .json({
@@ -220,6 +230,10 @@ exports.getProjectById = async (req,res) =>{
                 }
             })
         }
+        return res.status(404).json({
+            status: 'fail',
+            message: 'project not found!'
+        })
     } catch (error) {
         return res.status(500).json({
             status: 'fail',
@@ -245,8 +259,13 @@ exports.offerProject = async(req,res)=>{
             })
         }
         const {offer_price,offer_desc} = req.body
-        const project_id = req.params.project_id
-        
+        const project_id = req.query.project_id
+        if(!project_id){
+            return res.status(400).json({
+                status: 'fail',
+                message: 'there is no project id!'
+            })
+        }
         const project = await projectsTable.findOne({where: {project_id}})
         if(!project){
             return res.status(404).json({
@@ -313,7 +332,13 @@ exports.getAllOffer = async(req,res)=>{
                 message: 'there is no cookie there!'
             })
         }
-        const project_id = req.params.project_id     
+        const project_id = req.query.project_id  
+        if(!project_id){
+            return res.status(400).json({
+                status: 'fail',
+                message: 'there is no project id!'
+            })
+        }
         const findProject = await projectsTable.findOne({where: {project_id}})
         if(!findProject){
             return res.status(404).json({
@@ -398,7 +423,7 @@ exports.acceptOffer = async(req,res)=>{
             const project_desc = findProject.project_desc;
             const freelancer_name = offer.freelancerName;
             const deadline = findProject.deadline;
-            const project_status = 'active'
+            const project_status = 'active' 
             
             await createActiveProjects(
                 project_id,
@@ -411,8 +436,6 @@ exports.acceptOffer = async(req,res)=>{
                 freelancer_name,
                 offer_price,
             )
-            // await offerProjectsTable.update({status: 'accepted'},
-            //     {where: {project_id}})
             return res.status(200).json({
                 status: 'success',
                 message: 'success accept project',
