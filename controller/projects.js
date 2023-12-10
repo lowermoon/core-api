@@ -4,8 +4,9 @@ const freelancerTable = require('../models/tables/freelancerTable')
 const jwt = require('jsonwebtoken')
 const projectsTable = require('../models/tables/projectsTable');
 const { offerProjects, allOfferProjects, findOffer, alreadyOffer } = require("../models/functions/offerFunction");
-const { createActiveProjects, isActive } = require("../models/functions/activeProjectsFunction");
+const { createActiveProjects, isActive, getProjectActive } = require("../models/functions/activeProjectsFunction");
 const offerProjectsTable = require("../models/tables/offerProjectsTable");
+const activeProjectsTable = require("../models/tables/activeProjectsTable");
 
 
 // CREATE READ UPDATE DELETE FOR PROJECTS TABLE
@@ -288,12 +289,6 @@ exports.offerProject = async(req,res)=>{
             const freelancerName = freelancer.username
             const freelancerId = freelancer.freelancer_id
             const activeProject = await isActive(project_id)
-            if(activeProject){
-            return res.status(406).json({
-                status: 'fail',
-                message: 'project already accepted!'
-            })
-        }
             const resultOffer = await alreadyOffer(project_id,freelancerId)
             if(resultOffer){
                 return res.status(406).json({
@@ -301,19 +296,34 @@ exports.offerProject = async(req,res)=>{
                     message: 'u already offer this project!'
                 })
             }
-            await offerProjects(
-                project_id,
-                user_id,
-                freelancerName,
-                offer_price,
-                offer_desc,
-                freelancerId
-                )
-            return res.status(200).json({
-                status: 'success',
-                message: 'success offer project'
-            })  
+            if(!activeProject){
+                await offerProjects(
+                    project_id,
+                    user_id,
+                    freelancerName,
+                    offer_price,
+                    offer_desc,
+                    freelancerId
+                    )
+                    return res.status(200).json({
+                        status: 'success',
+                        message: 'success offer project'
+                    })  
+                }
 
+            if(activeProject.project_status == 'active'){
+            return res.status(406).json({
+                status: 'fail',
+                message: 'project already accepted!'
+            })
+        }
+            if(activeProject.project_status == 'pending_by_freelancer' || activeProject.project_status == 'pending_by_users'){
+                return res.status(406).json({
+                    status: 'fail',
+                    message: 'project pending!'
+                })
+            }
+            
         })
     } catch (error) {
         return res.status(500).json({
@@ -384,6 +394,7 @@ exports.acceptOffer = async(req,res)=>{
         }
         const project_id = req.query.project_id
         const freelancer_id = req.query.freelancer_id
+        const price = req.query.price
         const findProject = await projectsTable.findOne({where: {project_id}})
         const findFreelancer = await freelancerTable.findOne({where: {freelancer_id}})
         if(!findProject || !findFreelancer){
@@ -416,7 +427,14 @@ exports.acceptOffer = async(req,res)=>{
                     message: 'u cannot access this!'
                 })
             }
-            const offer = await findOffer(freelancer_id)
+            const alreadyOffer = await activeProjectsTable.findOne({where: {freelancer_id,user_id}})
+            if(alreadyOffer){
+                return res.status(406).json({
+                    status: 'fail',
+                    message: 'u already offer this project!'
+                })
+            }
+            const offer = await findOffer(freelancer_id,project_id)
             
             const project_name = findProject.project_name;
             const offer_price = offer.offer_price;
@@ -436,6 +454,7 @@ exports.acceptOffer = async(req,res)=>{
                 freelancer_name,
                 offer_price,
             )
+            await offerProjectsTable.destroy({where: {project_id,freelancerId:freelancer_id}})
             return res.status(200).json({
                 status: 'success',
                 message: 'success accept project',
@@ -450,6 +469,143 @@ exports.acceptOffer = async(req,res)=>{
                     freelancer_name,
                     offer_price,
                 }
+            })  
+        })
+    } catch (error) {
+        if(error){
+            return res.status(500).json({
+                status: 'fail',
+                message: 'Internal server error' + error
+            })
+        }
+    }
+}
+
+exports.cancelProjectbyFreelancer = async(req,res) =>{
+    try {
+        const cookie = req.headers.cookie
+        if(!cookie){
+            return res.status(400).json({
+                status: 'fail',
+                message: 'there is no cookie there!'
+            })
+        }
+        const project_id = req.query.project_id
+        const findProject = await activeProjectsTable.findOne({where: {project_id}})
+        if(!findProject){
+            return res.status(404).json({
+                status: 'fail',
+                message: 'project not found!'
+            })
+        }
+        const verifyToken = cookie.split('=')[1]
+        if(!verifyToken){  
+            return res.status(400).json({
+                status: 'fail',
+                message: 'unauthorized!'
+            })
+        }
+        jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
+            if(err){
+                return res.status(404).json({
+                    status: 'fail',
+                    message: err
+                })
+            }  
+            const username = decoded.username
+            const user = await freelancerTable.findOne({where: {username}})
+            const freelancer_id = user.freelancer_id
+
+            if(freelancer_id !== findProject.freelancer_id){
+                return res.status(404).json({
+                    status: 'fail',
+                    message: 'u cannot access this!'
+                })
+            }
+            const ifPending = await activeProjectsTable.findOne({where: {project_id,freelancer_id}})
+            if(ifPending.project_status == 'pending_by_users'){
+                await activeProjectsTable.destroy({where: {project_id,freelancer_id}})
+                return res.status(200).json({
+                    status: 'success',
+                    message: 'cancel project'
+                })
+            }
+            const project_status = 'pending_by_freelancer'
+            await activeProjectsTable.update({project_status},{where: {project_id,freelancer_id}})
+            return res.status(200).json({
+                status: 'success',
+                message: 'project pending need to be accepted by users!',
+            })  
+        })
+    } catch (error) {
+        if(error){
+            return res.status(500).json({
+                status: 'fail',
+                message: 'Internal server error' + error
+            })
+        }
+    }
+}
+exports.cancelProjectbyUser = async(req,res) =>{
+    try {
+        const cookie = req.headers.cookie
+        if(!cookie){
+            return res.status(400).json({
+                status: 'fail',
+                message: 'there is no cookie there!'
+            })
+        }
+        const project_id = req.query.project_id
+        const findProject = await projectsTable.findOne({where: {project_id}})
+        if(!findProject){
+            return res.status(404).json({
+                status: 'fail',
+                message: 'project not found!'
+            })
+        }
+        const verifyToken = cookie.split('=')[1]
+        if(!verifyToken){  
+            return res.status(400).json({
+                status: 'fail',
+                message: 'unauthorized!'
+            })
+        }
+        jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
+            if(err){
+                return res.status(404).json({
+                    status: 'fail',
+                    message: err
+                })
+            }  
+            const username = decoded.username
+            const user = await usersTable.findOne({where: {username}})
+            const user_id = user.consumerId
+            if(!user_id){
+                return res.status(404).json({
+                    status: 'fail',
+                    message: 'user not found!'
+                })
+            }
+            if(user_id !== findProject.user_id){
+                return res.status(404).json({
+                    status: 'fail',
+                    message: 'u cannot access this!'
+                })
+            }
+            // const findActiveProject = await getProjectActive(user_id)
+            const ifPending = await activeProjectsTable.findOne({where: {project_id,user_id}})
+            if(ifPending.project_status == 'pending_by_freelancer'){
+                await activeProjectsTable.destroy({where: {project_id,user_id}})
+                return res.status(200).json({
+                    status: 'success',
+                    message: 'project cancel!'
+                })
+            }
+            const project_status = 'pending_by_users'
+            await activeProjectsTable.update({project_status},{where: {project_id,user_id}})
+            return res.status(200).json({
+                status: 'success',
+                message: 'project pending need to be accepted by freelancer!',
             })  
         })
     } catch (error) {

@@ -34,7 +34,7 @@ const allOfferProjects = async (project_id) => {
     }
 }
 
-const findOffer = async (freelancer_id) => {
+const findOffer = async (freelancer_id,project_id) => {
   try {
     const offerProject = await offerProjectsTable.findOne({ where: { freelancerId:freelancer_id } });
     return offerProject;
