@@ -105,7 +105,8 @@ router.get('/verify',(req,res)=>{
   router.post('/offerProject',projects.offerProject)
   router.post('/cancelProjectByFreelancer',projects.cancelProjectbyFreelancer)
   router.post('/cancelProjectByUsers',projects.cancelProjectbyUser)
-  
+  router.post('/freelanceCompleteProject',projects.finishProjectByFreelancer)
+  router.post('/usersCompleteProject',projects.finishProjectByUser) 
   
 
 

@@ -323,7 +323,12 @@ exports.offerProject = async(req,res)=>{
                     message: 'project pending!'
                 })
             }
-            
+            if(activeProject.project_status == 'complete'){
+                return res.status(406).json({
+                    status: 'fail',
+                    message: 'project already complete!'
+                })
+            }
         })
     } catch (error) {
         return res.status(500).json({
@@ -618,6 +623,155 @@ exports.cancelProjectbyUser = async(req,res) =>{
     }
 }
 
+exports.finishProjectByFreelancer = async(req,res)=>{
+    try {
+        const cookie = req.headers.cookie
+        if(!cookie){
+            return res.status(400).json({
+                status: 'fail',
+                message: 'there is no cookie there!'
+            })
+        }
+        const project_id = req.query.project_id
+        const findProject = await activeProjectsTable.findOne({where: {project_id}})
+        if(!findProject){
+            return res.status(404).json({
+                status: 'fail',
+                message: 'project not found!'
+            })
+        }
+        const verifyToken = cookie.split('=')[1]
+        if(!verifyToken){  
+            return res.status(400).json({
+                status: 'fail',
+                message: 'unauthorized!'
+            })
+        }
+        jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
+            if(err){
+                return res.status(400).json({
+                    status: 'fail',
+                    mesage: err
+                })
+            }
+            const username = decoded.username
+            const user = await freelancerTable.findOne({where: {username}})
+            if(!user){
+                return res.status(404).json({
+                    status: 'fail',
+                    message: 'user not found!'
+                })
+            }
+            const freelancer_id = user.freelancer_id
+            if(freelancer_id !== findProject.freelancer_id){
+                return res.status(404).json({
+                    status: 'fail',
+                    message: 'u cannot access this!'
+                })
+            }
+            const status = await activeProjectsTable.findOne({where: {project_id,freelancer_id}})
+            if(status.project_status == 'complete'){
+                return res.status(406).json({
+                    status: 'fail',
+                    message: 'project already complete!'
+                })
+            }
+            if(status.project_status == 'pending_need_review'){
+                return res.status(406).json({
+                    status: 'fail',
+                    message: 'project pending need to be reviewed by users!'
+                })
+            }
+            const project_status = 'pending_need_review'
+            await activeProjectsTable.update({project_status},{where: {project_id,freelancer_id}})
+            return res.status(200).json({
+                status: 'success',
+                message: 'project pending need to be reviewed by users!',
+            })
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: 'fail',
+            message: 'Internal server error' + error
+        })
+    }
+}
 
+exports.finishProjectByUser = async(req,res)=>{
+    try {
+        const cookie = req.headers.cookie
+        if(!cookie){
+            return res.status(400).json({
+                status: 'fail',
+                message: 'there is no cookie there!'
+            })
+        }
+        const project_id = req.query.project_id
+        const freelancer_id = req.query.freelancer_id
+        const findProject = await activeProjectsTable.findOne({where: {project_id}})
+        const findFreelancer = await freelancerTable.findOne({where: {freelancer_id}})
+        if(!findProject || !findFreelancer){
+            return res.status(404).json({
+                status: 'fail',
+                message: 'project / Freelancers not found!'
+            })
+        }
+        const verifyToken = cookie.split('=')[1]
+        if(!verifyToken){  
+            return res.status(400).json({
+                status: 'fail',
+                message: 'unauthorized!'
+            })
+        }
+        jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err,decoded)=>{
+            if(err){
+                return res.status(400).json({
+                    status: 'fail',
+                    message: err
+                })
+            }
+            const username = decoded.username
+            const user = await usersTable.findOne({where: {username}})
+            if(!user){
+                return res.status(404).json({
+                    status: 'fail',
+                    message: 'user not found!'
+                })
+            }
+            const user_id = user.consumerId
+            if(user_id !== findProject.user_id){
+                return res.status(404).json({
+                    status: 'fail',
+                    message: 'u cannot access this!'
+                })
+            }
+            const isSuccess = await activeProjectsTable.findOne({where: {project_id,freelancer_id,user_id}})
+            if(isSuccess.project_status == 'complete'){
+                return res.status(406).json({
+                    status: 'fail',
+                    message: 'project already complete!'
+                })
+            }
+            const project_status = 'complete'
+            const experience = Math.floor(Math.random() * 200 ) + 100
+            const point = Math.floor(Math.random() * 200 ) + 100
+            await activeProjectsTable.update({project_status},{where: {project_id,freelancer_id,user_id}})
+            await freelancerTable.increment({experiencePoint:experience},{where: {freelancer_id}})
+            await usersTable.increment({specialPoint : point},{where: {consumerId:user_id}})
+            return res.status(200).json({
+                status: 'success',
+                message: 'project complete!',
+                result: {
+                    specialPoint : point
+                }
+            })
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: 'fail',
+            message: 'Internal server error' + error
+        })
+    }
+}
 
 // HANDLER FOR ACTIVE PROJECTS
