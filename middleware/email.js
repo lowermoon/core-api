@@ -2,12 +2,14 @@ const nodemailer = require('nodemailer');
 const fs = require('fs');
 const { promisify } = require('util');
 const readFile = promisify(fs.readFile)
+const dotenv = require('dotenv');
+dotenv.config();
 
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: `watashiox@gmail.com`,
-      pass:`xtcvwuvoxccwcong`,
+      user: process.env.EMAIL_MASTER,
+      pass: process.env.PASSWORD_MASTER,
     },
   });
 
