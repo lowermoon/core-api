@@ -7,6 +7,7 @@ const { offerProjects, allOfferProjects, findOffer, alreadyOffer } = require("..
 const { createActiveProjects, isActive, getProjectActive } = require("../models/functions/activeProjectsFunction");
 const offerProjectsTable = require("../models/tables/offerProjectsTable");
 const activeProjectsTable = require("../models/tables/activeProjectsTable");
+const { alreadyRated, createRating } = require("../models/functions/rating");
 
 
 // CREATE READ UPDATE DELETE FOR PROJECTS TABLE
@@ -285,6 +286,12 @@ exports.offerProject = async(req,res)=>{
             }  
             const username = decoded.username
             const freelancer = await freelancerTable.findOne({where: {username}})
+            if(!freelancer){
+                return res.status(404).json({
+                    status: 'fail',
+                    message: 'freelancer not found!'
+                })
+            }
             const user_id = project.user_id
             const freelancerName = freelancer.username
             const freelancerId = freelancer.freelancer_id
@@ -527,6 +534,12 @@ exports.cancelProjectbyFreelancer = async(req,res) =>{
                     message: 'u cannot access this!'
                 })
             }
+            if (ifPending.project_status == 'pending_by_freealncer'){
+                return res.status(406).json({
+                    status: 'fail',
+                    message: 'you already cancel these project ,need accepted by users!!'
+                })
+            }
             const ifPending = await activeProjectsTable.findOne({where: {project_id,freelancer_id}})
             if(ifPending.project_status == 'pending_by_users'){
                 await activeProjectsTable.destroy({where: {project_id,freelancer_id}})
@@ -595,6 +608,12 @@ exports.cancelProjectbyUser = async(req,res) =>{
                 return res.status(404).json({
                     status: 'fail',
                     message: 'u cannot access this!'
+                })
+            }
+            if(ifPending.project_status == 'pending_by_users'){
+                return res.status(406).json({
+                    status: 'fail',
+                    message: 'you already cancel these project ,need accepted by freelancer!!'
                 })
             }
             // const findActiveProject = await getProjectActive(user_id)

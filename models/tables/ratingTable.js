@@ -1,23 +1,28 @@
 const {DataTypes} = require('sequelize');
-const db = require('../../config/db');
+const db = require('../../dbconfig');
 
 const ratingTable = db.define('rating', {
-    freelancerId: {
+    freelancer_id: {
         type: DataTypes.STRING,
         allowNull: false,
     },
     rating: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        defaultValue: 0,
     },
-    userId: { 
+    comment:{
+        type: DataTypes.STRING,
+    },
+    username : {
+        type: DataTypes.STRING,
+    },
+    user_id: { 
         type: DataTypes.STRING,
         allowNull: false,
     },
 })
 
-ratingTable.synnc().then(()=>{
+ratingTable.sync({alter:true}).then(()=>{
     console.log('rating table is synced!')
 })
 
