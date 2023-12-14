@@ -12,7 +12,7 @@ const usersTable = require('../models/tables/usersTable.js');
 const projects = require('../controller/projects.js');
 const { uploadFile } = require('../config/googleStorage.js');
 const { ratingFreelancers, showAllRating, totalRating } = require('../controller/rating.js');
-const { reportUsers } = require('../controller/reportUSers.js');
+const { reportUsers } = require('../controler/reportUsers.js')
 const router = express.Router();
 
 // ============================= GET ROUTER ========================================== //
