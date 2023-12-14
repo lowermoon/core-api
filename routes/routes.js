@@ -12,6 +12,7 @@ const usersTable = require('../models/tables/usersTable.js');
 const projects = require('../controller/projects.js');
 const { uploadFile } = require('../config/googleStorage.js');
 const { ratingFreelancers, showAllRating, totalRating } = require('../controller/rating.js');
+const { reportUsers } = require('../controller/reportUSers.js');
 const router = express.Router();
 
 // ============================= GET ROUTER ========================================== //
@@ -114,4 +115,7 @@ router.get('/verify',(req,res)=>{
   router.get('/allRating',showAllRating)
   router.get ('/rate', totalRating)
 
+
+  // report
+  router.post('/report' , reportUsers)
 module.exports = router;
