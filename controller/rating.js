@@ -208,15 +208,11 @@ exports.totalRating = async (req,res) =>{
             total += sum.rating
         });
         const average = total/findRate.length
-        
         res.status(200).json({
             status: 'success',
             message: 'success get total rating!',
             result: 
-                {
-                    totalRating: findRate.length,
-                    rating: average.toFixed(1)
-                }   
+                average   
         })
     } catch (error) {
         return res.status(500).json({
