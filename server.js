@@ -22,13 +22,11 @@ const cors = require('cors');
 app.set('view engine', 'ejs');
 
 let corsOptions = {
-    origin : ['https://todo-client-mqxn4q5g2q-as.a.run.app','http://localhost:3000'],
+    origin : ['*','web.skillshift.my.id','http://localhost:3000'],
     credentials : true
 }
 
-app.use(cors({
-    origin: '*', 
-    credentials: true }));
+app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.urlencoded({extended: false}));
