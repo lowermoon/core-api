@@ -5,7 +5,7 @@ const usersTable = require('../models/tables/usersTable');
 const reportTable = require('../models/tables/reportTable');
 
 
-exports.reportUsers = async (req,res) =>{
+const reportingUsers = async (req,res) =>{
     try {
         const cookie = req.headers.cookie;
         if(!cookie){
@@ -92,3 +92,5 @@ exports.reportUsers = async (req,res) =>{
         })
     }
 }
+
+module.exports = reportingUsers;
