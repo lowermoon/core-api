@@ -11,6 +11,7 @@ const freelancerTable = require('../models/tables/freelancerTable.js');
 const usersTable = require('../models/tables/usersTable.js');
 const projects = require('../controller/projects.js');
 const { uploadFile } = require('../config/googleStorage.js');
+const { ratingFreelancers, showAllRating, totalRating } = require('../controller/rating.js');
 const router = express.Router();
 
 // ============================= GET ROUTER ========================================== //
@@ -108,6 +109,9 @@ router.get('/verify',(req,res)=>{
   router.post('/freelanceCompleteProject',projects.finishProjectByFreelancer)
   router.post('/usersCompleteProject',projects.finishProjectByUser) 
   
-
+  // rating
+  router.post('/rating',ratingFreelancers)
+  router.get('/allRating',showAllRating)
+  router.get ('/rate', totalRating)
 
 module.exports = router;
