@@ -21,7 +21,12 @@ const cors = require('cors');
 
 app.set('view engine', 'ejs');
 
-app.use(cors());
+let corsOptions = {
+    origin : ['https://todo-client-mqxn4q5g2q-as.a.run.app','http://localhost:3000'],
+    credentials : true
+}
+
+app.use(cors('*'));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.urlencoded({extended: false}));
