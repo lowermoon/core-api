@@ -5,6 +5,7 @@ const dotenv= require('dotenv');
 const {createFreelancer,updateFreelancer,findFreelancer, usernameFreelancer, emailFreelancer} = require('../../../models/functions/freelancerFunction');
 const createRecords  = require('../../../models/functions/createRecords');
 const  {mailOptions,transporter}  = require('../../../middleware/email');
+const reportTable = require('../../../models/tables/reportTable');
 
 
 dotenv.config();
@@ -15,7 +16,49 @@ exports.loginFreelancer = async(req,res)=>{
     try {
         const {username,email,password}=req.body
         const freelancer = await findFreelancer(username,password)
-        if(freelancer){
+        if(!freelancer){
+          return res.status(401)
+            .json({
+            status: "failed",
+            message: "failed to login",
+            data: {
+              error: "username or password is wrong"
+            }
+          })
+        }
+        const checkStatus = await reportTable.findOne({where: {id:freelancer.freelancer_id}}) 
+        if(!checkStatus && freelancer){
+          
+            const ID = freelancer.freelancer_id
+            const role = "freelancer"
+            
+            const token = jwt.sign({username},process.env.ACCESS_TOKEN_SECRET,{expiresIn: '1h'})
+            createRecords(ID,role)
+            return res.cookie('verifyToken',token,{
+              httpOnly: true,
+              maxAge: 24*60*60*1000,
+              secure: true  
+            })
+            .status(201).setHeader('Content-Type', 'application/json') 
+            // sending the data to the FE
+            
+          .json({
+          status: 'success',
+          message: 'success login',
+          result: {
+          
+                fullName: freelancer.name,
+                username: freelancer.username,
+                email: freelancer.email,
+                role : "freelancer",
+                EXP: freelancer.experiencePoint,
+                level: freelancer.level, 
+                token: token,
+              }
+            })
+          }
+            if(checkStatus.status == 'warning' && freelancer){
+
             const ID = freelancer.freelancer_id
             const role = "freelancer"
             const token = jwt.sign({username},process.env.ACCESS_TOKEN_SECRET,{expiresIn: '1h'})
@@ -28,33 +71,48 @@ exports.loginFreelancer = async(req,res)=>{
             .status(201).setHeader('Content-Type', 'application/json') 
             // sending the data to the FE
             .json({
+              status : 'success',
+              message: `success login ,you got ${checkStatus.report} report`,
+              result:{
+
                 fullName: freelancer.name,
                 username: freelancer.username,
                 email: freelancer.email,
                 role : "freelancer",
                 EXP: freelancer.experiencePoint,
                 level: freelancer.level, 
-                token: token
-            });  
-        }
-        return res.status(401)
-        .json({
-            status: "failed",
-            message: "failed to login",
-            data: {
-                error: "username or password is wrong"
-            }
-        })
+                status: checkStatus.status,
+                report : checkStatus.report,
+                token: token,
+              }
+              }); 
+          }
         
+        if(checkStatus.status == 'banned' && freelancer){
+            return res.status(401).setHeader('Content-Type', 'application/json') 
+            // sending the data to the FE
+            .json({
+              status: 'failed',
+              message: 'this account get banned, cannot access!.',
+              result:{
+                fullName: freelancer.name,
+                username: freelancer.username,
+                email: freelancer.email,
+                role : "freelancer",
+                EXP: freelancer.experiencePoint,
+                status: checkStatus.status
+              }
+              }); 
+          }
+            
+        
+           
     } catch (error) {
         res.status(400).json({
             status: "failed",
-            message: "failed to login",
-            data: {
-                error: error
-            }
+            message: "failed to login" + error,
+            
         })
-        throw error
     }
 }
 
