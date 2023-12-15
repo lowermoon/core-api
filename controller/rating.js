@@ -211,8 +211,10 @@ exports.totalRating = async (req,res) =>{
         res.status(200).json({
             status: 'success',
             message: 'success get total rating!',
-            result: 
-                average   
+            result: {
+                totalRate : findRate.length,
+                rate : average.toFixed(1) 
+            }
         })
     } catch (error) {
         return res.status(500).json({
