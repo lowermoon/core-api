@@ -5,7 +5,6 @@ const bodyParser = require('body-parser');
 const dbConfig = require('./dbconfig/index')
 const router = require('./routes/routes')
 const cookieParser = require("cookie-parser");
-const controlpanel_api = require('./routes/controlpanel');
 // const android_api = require('./routes/android');
 const projects_api = require('./routes/projects');
 const cors = require('cors');
@@ -35,7 +34,6 @@ app.use(express.static('assets'));
 
 const port = process.env.PORT || 7000
 app.use('/api',router);
-app.use('/control', controlpanel_api)
 app.use('/projects', projects_api)
 
 app.listen(port,()=>{
