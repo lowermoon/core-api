@@ -94,12 +94,11 @@ exports.profileUsers = async(req,res)=>{
   
       jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
         if (err) {
-          return res.status(404).response({
+          return res.status(404).json({
             status: 'fail',
             message: err
           });
         }
-  
         const username = decoded.username
         const userConsumer = await usersTable.findOne({ where: { username } })
         const userFreelancer = await freelancerTable.findOne({ where: { username } })
