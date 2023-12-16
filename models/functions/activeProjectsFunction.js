@@ -10,7 +10,8 @@ exports.createActiveProjects = async function (
   project_status,
   freelancer_id,
   freelancer_name,
-  offer_price
+  offer_price,
+  category
 ) {
   await activeProjectsTable.create({
     project_id,
@@ -22,6 +23,7 @@ exports.createActiveProjects = async function (
     freelancer_id,
     freelancer_name,
     offer_price,
+    project_category:category,
     
   });
 };

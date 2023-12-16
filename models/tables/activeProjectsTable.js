@@ -40,6 +40,10 @@ const activeProjectsTable = db.define('activeProjects', {
         allowNull: false,
         defaultValue: 0,
     },
+    project_category: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
 })
 
 activeProjectsTable.sync({alter:true}).then(() => {
