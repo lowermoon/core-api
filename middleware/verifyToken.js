@@ -19,7 +19,10 @@ exports.verificationToken = async (req, res) => {
 
     await jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
       if (err) {
-        return res.render('index');
+        return res.status(500).json({
+          status:'failed',
+          message: 'invalid token!'
+        });
       }
       const username = decoded.username
       const userConsumer = await usersTable.findOne({where: {username}})
