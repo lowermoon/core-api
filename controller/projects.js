@@ -453,6 +453,7 @@ exports.acceptOffer = async(req,res)=>{
             const project_desc = findProject.project_desc;
             const freelancer_name = offer.freelancerName;
             const deadline = findProject.deadline;
+            const category = findProject.project_category;
             const project_status = 'active' 
             
             await createActiveProjects(
@@ -465,7 +466,9 @@ exports.acceptOffer = async(req,res)=>{
                 freelancer_id,
                 freelancer_name,
                 offer_price,
-            )
+                category
+                )
+            
             await offerProjectsTable.destroy({where: {project_id,freelancerId:freelancer_id}})
             return res.status(200).json({
                 status: 'success',
