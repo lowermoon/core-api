@@ -38,7 +38,7 @@ exports.uploadPhoto = async ({role, client_id, file}) => {
     })
 }
 
-exports.uploadNewFaceId = async ({client_id, file}) => {
+exports.uploadNewFaceId = async ({ client_id, file}) => {
     const response = [];
     await file.forEach(async (item, index) => {
         const fileBuffer = item.buffer;
