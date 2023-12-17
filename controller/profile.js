@@ -370,16 +370,16 @@ exports.uploadPhotoProfile = async (req, res) => {
 
 exports.uploadNewFaceId = async (req, res) => {
   try {
-    // const {cookie} = await req.headers;
-    // const verifyToken = cookie.split('=')[1];
+    const {cookie} = await req.headers;
+    const verifyToken = cookie.split('=')[1];
 
-    // if(!verifyToken){
-    //   return res.status(402)
-    //   .json({
-    //     status: 'fail',
-    //     message: 'Unauthorized! You need to login first'
-    //   })
-    // }
+    if(!verifyToken){
+      return res.status(402)
+      .json({
+        status: 'fail',
+        message: 'Unauthorized! You need to login first'
+      })
+    }
 
     
 
@@ -392,39 +392,31 @@ exports.uploadNewFaceId = async (req, res) => {
       })
     }
 
-    // jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (error, decoded) => {
-    //   if (error) {
-    //     return res.status(402).json({
-    //       status: 'fail',
-    //       message: 'Unauthorized! It seems like you are not logged in, please log in first!'
-    //     })
-    //   }
+    jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (error, decoded) => {
+      if (error) {
+        return res.status(402).json({
+          status: 'fail',
+          message: 'Unauthorized! It seems like you are not logged in, please log in first!'
+        })
+      }
   
-    //   // Checking the role of the users
-    //   const username = decoded.username;
-    //   const user = await usersTable.findOne({ where: { username } });
-    //   const freelancer = await freelancerTable.findOne({ where: { username } });
-
-    //   if(freelancer) {
-        // const client_id = user.freelancer_id;
-        // uploadNewFaceId({client_id, file: files}).then(response => {
-        //   return res.status(200).json({
-        //     status: 'success',
-        //     message: 'Photo successfully uploaded!',
-        //     data: {
-        //       imageUrl: response.publicUrl
-        //     }
-        //   })
-        // })
-    //   }
-    // })
-    const client_id = 'ziyadganteng'
+      // Checking the role of the users
+      const username = decoded.username;
+      const freelancer = await freelancerTable.findOne({ where: { username } });
+      if(!freelancer){
+        return res.status(404).json({
+          status: 'fail',
+          message: 'freelancer not found!'
+        })
+      }
+    const client_id = freelancer.freelancer_id
     await uploadNewFaceId({client_id, file: files}).then(response => {
       return res
       .json({
         message: response
       })
     })
+  })
 
   } catch (error) {
     return res
