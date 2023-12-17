@@ -1,13 +1,13 @@
 const { uploadPhoto } = require("../models/functions/uploadFunction");
 const jwt = require('jsonwebtoken');
 const freelancerTable = require("../models/tables/freelancerTable");
-const axios = require('axios')
+const axios = require('axios');
+const { uploadVeriyFaceId } = require("../models/functions/photosFunction");
 
 let number = 1
 
-exports.uploadFotoFreelancer = async (req,res)=>{
+exports.scanFaceId = async (req,res)=>{
     try{
-
         const cookie = req.headers.cookie
         if(!cookie){
             return res.status(400).json({
@@ -16,27 +16,20 @@ exports.uploadFotoFreelancer = async (req,res)=>{
             })
         }
         const verifyToken = cookie.split('=')[1]
-        if(!verifyToken){
+        if (!verifyToken) {
             return res.status(400).json({
                 status: 'fail',
                 message: 'unauthorized!'
             })
         }
-        const file = req.file
+        const file = req.files
         if(!file){
             return res.status(400).json({
                 status: 'fail',
                 message: 'there is no file!'
             })
         }
-        const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg']
-        if(!allowedTypes.includes(file.mimetype)){
-            return res.status(400).json({
-                status: 'fail',
-                message: 'file must be image!'
-            })
-        }
-        jwt.verify(verifyToken,process.env.ACCESS_TOKEN_SECRET,async (err,decoded)=>{
+        jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err,decoded)=>{
             if(err){
                 return res.status(400).json({
                     status: 'fail',
@@ -44,30 +37,40 @@ exports.uploadFotoFreelancer = async (req,res)=>{
                 })
             }
             const username = decoded.username
-            const user = await freelancerTable.findOne({where: {username}})
-            if(!user){
+            const findFreelancer = await freelancerTable.findOne({where: {username}})
+            if(!findFreelancer){
                 return res.status(404).json({
                     status: 'fail',
-                    message: 'user not found!'
+                    message: 'freelancer not found!'
                 })
             }
-            const id = user.freelancer_id
-            const clientId = `${id}_${number}`
-            optionsFolder = 'face_id'
-            options= 'verif_image'
-            number++
-            uploadPhoto({optionsFolder , target: 'freelancers',clientId ,options,fileName, file})
-            .then(response =>{
-                const {publicUrl} = response
-                return res.status(200).json({
-                    status: 'success',
-                    message: 'file uploaded successfully',
-                    result : {
-                        publicUrl         
-                    }
+        const client_id = findFreelancer.freelancer_id
+        await uploadVeriyFaceId({client_id, file}).then(async response => {
+            try {
+                const responses = await axios.get(`https://face-recognition-n2fwioi52q-as.a.run.app/verify/${client_id}`) 
+                    if(responses.data.prediction  < 20){
+                        return res.status(200).json({
+                            status: 'success',
+                            message: 'face id verified!'       
+                        })
+                    } return res.status(400).json({
+                        status: 'fail',
+                        message: 'face id not match!!'       
+                    })
+            } catch (error) {
+                return res.json({
+                    status : 'fail',
+                    message : error
                 })
-            })
+            }
+        
+        
     })
+})
+
+        
+
+    
     }catch(err){
         return res.status(500).json({
             status: 'error',
