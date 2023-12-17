@@ -40,7 +40,7 @@ exports.loginUsers = async(req,res)=>{
       console.log(role)
       console.log(ID)
       createRecords(ID,role)
-      const token = jwt.sign({username},process.env.ACCESS_TOKEN_SECRET,{expiresIn: '1h'})
+      const token = jwt.sign({username},process.env.ACCESS_TOKEN_SECRET,{expiresIn: '7d'})
       return res.cookie('verifyToken',token,{
         httpOnly: true,
         maxAge: 24*60*60*1000,

@@ -32,11 +32,11 @@ exports.loginFreelancer = async(req,res)=>{
             const ID = freelancer.freelancer_id
             const role = "freelancer"
             
-            const token = jwt.sign({username},process.env.ACCESS_TOKEN_SECRET,{expiresIn: '1h'})
+            const token = jwt.sign({username},process.env.ACCESS_TOKEN_SECRET,{expiresIn: '7d'})
             createRecords(ID,role)
             return res.cookie('verifyToken',token,{
               httpOnly: true,
-              maxAge: 24*60*60*1000,
+              maxAge: 24*60*60*100000,
               secure: true  
             })
             .status(201).setHeader('Content-Type', 'application/json') 
