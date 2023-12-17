@@ -62,7 +62,7 @@ exports.uploadNewFaceId = async ({client_id, file}) => {
                 resolve({
                     status: 'success',
                     message: 'file uploaded successfully',
-                    publicUrl: `https://storage.googleapis.com/${googleBucket.name}/faceid/${client_id}/${client_id}_${index}`
+                    publicUrl: `https://storage.googleapis.com/${googleBucket.name}/faceid/${client_id}/base_image/${client_id}_${index}`
                 })
             })
             blobStream.end(fileBuffer);
