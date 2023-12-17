@@ -99,7 +99,7 @@ router.get('/verify',(req,res)=>{
 
   //router edit profile
   router.all('/profile/edit',profile.updateProfile);
-
+  router.post('/profile/newfaceid', uploadFile.array('file', 3), profile.uploadNewFaceId)
   router.post('/profile/uploadphoto', uploadFile.single('file'), profile.uploadPhotoProfile);
   
   // router.post('/deleteProject',projects.deleteProjectsHandler)
