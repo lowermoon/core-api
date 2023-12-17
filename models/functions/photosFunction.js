@@ -42,7 +42,7 @@ exports.uploadNewFaceId = async ({client_id, file}) => {
     const response = [];
     await file.forEach(async (item, index) => {
         const fileBuffer = item.buffer;
-        const fileUpload = googleBucket.file(`faceid/${client_id}/${client_id}_${index}`)
+        const fileUpload = googleBucket.file(`faceid/${client_id}/base_image/${client_id}_${index}`)
         const blobStream = fileUpload.createWriteStream({
             metadata: {
                 contentType: item.mimetype
