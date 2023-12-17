@@ -71,6 +71,39 @@ exports.uploadNewFaceId = async ({client_id, file}) => {
     })
     return Promise.all(response);
 }
+exports.uploadVeriyFaceId = async ({client_id, file}) => {
+    const response = [];
+    await file.forEach(async (item, index) => {
+        const fileBuffer = item.buffer;
+        const fileUpload = googleBucket.file(`faceid/${client_id}/verif_image/${client_id}_${index}`)
+        const blobStream = fileUpload.createWriteStream({
+            metadata: {
+                contentType: item.mimetype
+            }
+        });
+
+        let response_stream = new Promise((resolve, reject) => {
+            blobStream.on('error', (error) => {
+                reject({
+                    status: 'fail',
+                    filename: item.originalname,
+                    message: error
+                })
+            });
+    
+            blobStream.on('finish', () => {
+                resolve({
+                    status: 'success',
+                    message: 'file uploaded successfully',
+                    publicUrl: `https://storage.googleapis.com/${googleBucket.name}/faceid/${client_id}/verif_image/${client_id}_${index}`
+                })
+            })
+            blobStream.end(fileBuffer);
+        })
+        response.push(response_stream);
+    })
+    return Promise.all(response);
+}
 
 exports.updatePhoto = async (usersId, imgUrl) => {
     try {
