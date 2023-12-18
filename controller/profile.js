@@ -48,7 +48,7 @@ exports.profileUsers = async(req,res)=>{
           email: user.email,
           specialPoint : user.specialPoint,
           level: user.level,
-          role: 'consumer'
+          role: 'consumer',
         });
       }
       if(freelancer){
@@ -161,7 +161,10 @@ exports.updateProfile = async(req,res)=>{
 
     jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
       if (err) {
-        return res.render('index');
+        return res.status(404).json({
+          status : 'fail',
+          message: err
+        });
       }
       const username = decoded.username
       const userConsumer = await usersTable.findOne({ where: { username } })
@@ -220,7 +223,10 @@ exports.updateProfile = async(req,res)=>{
 
     jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
       if (err) {
-        return res.redirect('/');
+        return res.status(404).json({
+          status: 'fail',
+          message: err
+        });
       }
       const username = decoded.username
       const freelancer = await freelancerTable.findOne({where:{username}})

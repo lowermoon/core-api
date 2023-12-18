@@ -14,6 +14,7 @@ const { uploadFile } = require('../config/googleStorage.js');
 const { ratingFreelancers, showAllRating, totalRating } = require('../controller/rating.js');
 const reportingUsers = require('../controller/reportUsers.js');
 const { scanFaceId } = require('../controller/scanFoto.js');
+const { profilesFreelancer } = require('../controller/auth/freelancer/profileFreelancer.js');
 
 const router = express.Router();
 
@@ -39,6 +40,8 @@ router.get('/verify',(req,res)=>{
   })
   router.get('/profile/:username',profile.profileUsers);
   router.get('/profile',profile.profiles);
+
+  router.get('/profileFreelance/:username',profilesFreelancer)
   router.get('/forget',(req,res)=>{
     res.render('forget')
   })
@@ -103,6 +106,8 @@ router.get('/verify',(req,res)=>{
   router.post('/profile/newfaceid', uploadFile.array('file', 3), profile.uploadNewFaceId)
   router.post('/profile/uploadphoto', uploadFile.single('file'), profile.uploadPhotoProfile);
   router.post('/profile/verifFace', uploadFile.array('file',3), scanFaceId);
+  
+
   
   // router.post('/deleteProject',projects.deleteProjectsHandler)
 
