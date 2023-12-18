@@ -382,8 +382,9 @@ exports.uploadPhotoProfile = async (req, res) => {
       const role = 'users';
       const fileName = `photos_${role}_${user.consumerId}`;
       uploadPhoto({ target: role, fileName: fileName, file: file })
-      .then(response => {
+      .then(async response => {
         const {publicUrl} = response;
+        await photosTable.update({imgUrl:publicUrl},{where:{usersId:user.consumerId}})
         return res.status(200).json({
           status: 'success',
           message: 'Photo successfully uploaded!',
@@ -403,8 +404,9 @@ exports.uploadPhotoProfile = async (req, res) => {
       const role = 'freelancers';
       const fileName = `photos_${role}_${freelancer.freelancer_id}`;
       uploadPhoto({ target: role, fileName: fileName, file: file })
-      .then(response => {
+      .then(async response => {
         const {publicUrl} = response;
+        await photosTable.update({imgUrl:publicUrl},{where:{usersId:freelancer.freelancer_id}})
         return res.status(200).json({
           status: 'success',
           message: 'Photo successfully uploaded!',
