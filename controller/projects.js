@@ -20,7 +20,10 @@ exports.newProjectHandler = async (req, res) => {
             message: 'unauthorized!'
           });
         }
-        const verifyToken = cookie.split('=')[1];
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
         jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
             if (err) {
               return res.redirect('/');
@@ -128,7 +131,10 @@ exports.updateProjectsHandler = async (req, res) => {
             message: 'there is no cookie there!'
         })
     }
-    const verifyToken = cookie.split('=')[1]
+    const verifyToken = cookie
+    .split('; ')
+    .find(row => row.startsWith('verifyToken='))
+    .split('=')[1];
     if(!verifyToken){  
         return res.status(400).json({
             status: 'fail',
@@ -253,7 +259,10 @@ exports.offerProject = async(req,res)=>{
                 message: 'there is no cookie there!'
             })
         }
-        const verifyToken = cookie.split('=')[1]
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
         if(!verifyToken){  
             return res.status(400).json({
                 status: 'fail',
@@ -368,7 +377,10 @@ exports.getAllOffer = async(req,res)=>{
                 message: 'project not found!'
             })
         }
-        const verifyToken = cookie.split('=')[1]
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
         if(!verifyToken){  
             return res.status(400).json({
                 status: 'fail',
@@ -416,7 +428,10 @@ exports.acceptOffer = async(req,res)=>{
             })
         }
         
-        const verifyToken = cookie.split('=')[1]
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
         if(!verifyToken){  
             return res.status(400).json({
                 status: 'fail',
@@ -513,7 +528,10 @@ exports.cancelProjectbyFreelancer = async(req,res) =>{
                 message: 'project not found!'
             })
         }
-        const verifyToken = cookie.split('=')[1]
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
         if(!verifyToken){  
             return res.status(400).json({
                 status: 'fail',
@@ -584,7 +602,10 @@ exports.cancelProjectbyUser = async(req,res) =>{
                 message: 'project not found!'
             })
         }
-        const verifyToken = cookie.split('=')[1]
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
         if(!verifyToken){  
             return res.status(400).json({
                 status: 'fail',
@@ -662,7 +683,10 @@ exports.finishProjectByFreelancer = async(req,res)=>{
                 message: 'project not found!'
             })
         }
-        const verifyToken = cookie.split('=')[1]
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
         if(!verifyToken){  
             return res.status(400).json({
                 status: 'fail',
@@ -738,7 +762,10 @@ exports.finishProjectByUser = async(req,res)=>{
                 message: 'project / Freelancers not found!'
             })
         }
-        const verifyToken = cookie.split('=')[1]
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
         if(!verifyToken){  
             return res.status(400).json({
                 status: 'fail',

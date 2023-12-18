@@ -15,7 +15,10 @@ exports.ratingFreelancers = async (req,res) =>{
                 message: 'there is no cookie there!'
             })
         }
-        const verifyToken = cookie.split('=')[1]
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
         if (!verifyToken) {
             return res.status(400).json({
                 status: 'fail',
@@ -124,7 +127,10 @@ exports.showAllRating = async (req,res) =>{
                 message: 'there is no cookie there!'
             })
         }
-        const verifyToken = cookie.split('=')[1]
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
         if (!verifyToken) {
             return res.status(400).json({
                 status: 'fail',
@@ -175,7 +181,10 @@ exports.totalRating = async (req,res) =>{
                 message: 'there is no cookie there!'
             })
         }
-        const verifyToken = cookie.split('=')[1]
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
         if (!verifyToken) {
             return res.status(400).json({
                 status: 'fail',

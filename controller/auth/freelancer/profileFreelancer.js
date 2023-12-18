@@ -18,14 +18,17 @@ const { uploadPhoto } = require('../../../models/functions/uploadFunction')
 exports.profilesFreelancer = async(req,res)=>{
     try {
       const cookie = await req.headers.cookie;
-      if(!cookie){
+      if(!cookie || !cookie.includes('verifyToken')){
         return res.status(400)
         .json({
           status:'fail',
           message: 'there is no cookie here!'
         })
       }
-      const verifyToken = cookie.split('=')[1];
+      const verifyToken = cookie
+      .split('; ')
+      .find(row => row.startsWith('verifyToken='))
+      .split('=')[1];
       
       if (!verifyToken) {
         return res.status(402).json({
@@ -72,14 +75,17 @@ exports.updateProfileFreelance = async(req,res)=>{
   try {
     const {fullName,password,telephoneNumber,nationalId} = req.body;
     const cookie = await req.headers.cookie;
-    if(!cookie){
+    if(!cookie || !cookie.includes('verifyToken')){
       return res.status(400)
       .json({
         status: 'fail',
         message: 'there is no cookie here!'
       })
     }
-    const verifyToken = cookie.split('=')[1];
+    const verifyToken = cookie
+    .split('; ')
+    .find(row => row.startsWith('verifyToken='))
+    .split('=')[1];
 
     if (!verifyToken) {
       return res.status(402).json({
@@ -132,7 +138,17 @@ exports.updateProfileFreelance = async(req,res)=>{
   exports.addSkill = async(req,res)=>{
     try {
       const cookie = await req.headers.cookie;
-      const verifyToken = cookie.split('=')[1];
+      if(!cookie || !cookie.includes('verifyToken')){
+        return res.status(400)
+        .json({
+          status: 'fail',
+          message: 'there is no cookie here!'
+        })
+      }
+      const verifyToken = cookie
+      .split('; ')
+      .find(row => row.startsWith('verifyToken='))
+      .split('=')[1];
       const skills = req.body.skills
       
       if (!verifyToken) {
@@ -181,10 +197,19 @@ exports.updateProfileFreelance = async(req,res)=>{
 exports.getSkills = async(req,res)=>{
   try{
     const cookie = await req.headers.cookie
-    const verifyToken = cookie.split('=')[1]
-    if(!cookie){
+    if(!cookie || !cookie.includes('verifyToken')){
       return res.status(402)
       .json({
+        status: 'fail',
+        message: 'unauthorized!'
+      })
+    }
+    const verifyToken = cookie
+    .split('; ')
+    .find(row => row.startsWith('verifyToken='))
+    .split('=')[1];
+    if(!verifyToken){
+      return res.status(402).json({
         status: 'fail',
         message: 'unauthorized!'
       })
@@ -231,7 +256,17 @@ exports.getSkills = async(req,res)=>{
 exports.uploadPhotoProfile = async (req, res) => {
   // Checking Cookie
   const {cookie} = await req.headers;
-  const verifyToken = cookie.split('=')[1];
+  if(!cookie || !cookie.includes('verifyToken')){
+    return res.status(400)
+    .json({
+      status: 'fail',
+      message: 'there is no cookie here!'
+    })
+  }
+  const verifyToken = cookie
+  .split('; ')
+  .find(row => row.startsWith('verifyToken='))
+  .split('=')[1];
 
   if(!verifyToken){
     return res.status(402)

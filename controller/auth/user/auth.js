@@ -111,6 +111,9 @@ exports.verify = async (req,res) => {
         dataStorage.email,
         dataStorage.password,
         )
+        await photosTable.create({
+          usersId : consumerId,
+        })
         return res.status(201).json({
           status: 'sucess',
           message: 'register successfully!',
