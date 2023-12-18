@@ -3,16 +3,16 @@ const bcrypt = require('bcrypt')
 
 
 // Tables
-const usersTable = require('../models/tables/usersTable');
-const freelancerTable = require('../models/tables/freelancerTable');
-const skillsTables = require('../models/tables/skills')
+const usersTable = require('../../../models/tables/usersTable');
+const freelancerTable = require('../../../models/tables/freelancerTable');
+const skillsTables = require('../../../models/tables/skills')
 
 // Functions
-const {createUser,findUser,updateUser} = require('../models/functions/usersFunction');
-const {createFreelancer,updateFreelancer,findFreelancer} = require('../models/functions/freelancerFunction');
-const createSkills = require('../models/functions/createSkills')
+const {createUser,findUser,updateUser} = require('../../../models/functions/usersFunction');
+const {createFreelancer,updateFreelancer,findFreelancer} = require('../../../models/functions/freelancerFunction');
+const createSkills = require('../../../models/functions/createSkills')
 const multer = require('multer')
-const { uploadPhoto } = require('../models/functions/uploadFunction')
+const { uploadPhoto } = require('../../../models/functions/uploadFunction')
 
 
 exports.profilesFreelancer = async(req,res)=>{
