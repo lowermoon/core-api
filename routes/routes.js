@@ -55,7 +55,7 @@ router.get('/verify',(req,res)=>{
       };
       res.render('home/dashboard',{data});
   })
-  router.get('/logout',(req,res)=>{
+  router.post('/logout',(req,res)=>{
       res.clearCookie('verifyToken');
       res.json({
           status: 'success',

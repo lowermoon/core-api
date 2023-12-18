@@ -20,6 +20,7 @@ const multer = require('multer')
 const { uploadPhoto } = require('../models/functions/uploadFunction')
 const { uploadNewFaceId } = require('../models/functions/photosFunction')
 const photosTable = require('../models/tables/photosTable')
+const { nanoid } = require('nanoid')
 
 exports.profileUsers = async(req,res)=>{
   const { username } = req.params;
@@ -402,7 +403,8 @@ exports.uploadPhotoProfile = async (req, res) => {
 
     if(freelancer) {
       const role = 'freelancers';
-      const fileName = `photos_${role}_${freelancer.freelancer_id}`;
+      const random = nanoid(3)
+      const fileName = `photos_${role}_${freelancer.freelancer_id}_${random}`;
       uploadPhoto({ target: role, fileName: fileName, file: file })
       .then(async response => {
         const {publicUrl} = response;
