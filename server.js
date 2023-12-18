@@ -21,7 +21,7 @@ const cors = require('cors');
 app.set('view engine', 'ejs');
 
 let corsOptions = {
-    origin : ['*','web.skillshift.my.id','http://localhost:3000'],
+    origin : ['*','https://web.skillshift.my.id','http://localhost:3000'],
     credentials : true
 }
 
