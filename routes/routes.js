@@ -14,7 +14,7 @@ const { uploadFile } = require('../config/googleStorage.js');
 const { ratingFreelancers, showAllRating, totalRating } = require('../controller/rating.js');
 const reportingUsers = require('../controller/reportUsers.js');
 const { scanFaceId } = require('../controller/scanFoto.js');
-const { profilesFreelancer } = require('../controller/auth/freelancer/profileFreelancer.js');
+const  {profilesFreelancer, updateProfileFreelance}  = require('../controller/auth/freelancer/profileFreelancer.js');
 
 const router = express.Router();
 
