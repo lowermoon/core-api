@@ -8,14 +8,17 @@ const projectsTable = require('../models/tables/projectsTable');
 
 exports.verificationToken = async (req, res) => {
   const cookie = await req.headers.cookie;
-    if (!cookie) {
+    if (!cookie || !cookie.includes('verifyToken')) {
 
       return res.status(401).json({
         status:'failed',
         message: 'there is no cookie provided!'
       });
     }
-    const verifyToken = cookie.split('=')[1];
+    const verifyToken = cookie
+    .split('; ')
+    .find(row => row.startsWith('verifyToken='))
+    .split('=')[1];
 
     await jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
       if (err) {

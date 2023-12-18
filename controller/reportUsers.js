@@ -8,13 +8,16 @@ const reportTable = require('../models/tables/reportTable');
 const reportingUsers = async (req,res) =>{
     try {
         const cookie = req.headers.cookie;
-        if(!cookie){
+        if(!cookie || !cookie.includes('verifyToken')){
             return res.status(401).json({
                 status: 'failed',
                 message: 'there is no cookie'
             })
         }
-        const verifyToken = cookie.split('=')[1]
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
         const {username,reason} = req.body;
         if(!username || !reason){
             return res.status(400).json({

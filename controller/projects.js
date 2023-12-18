@@ -14,13 +14,16 @@ const { alreadyRated, createRating } = require("../models/functions/rating");
 exports.newProjectHandler = async (req, res) => {
     try {
         const cookie = await req.headers.cookie;
-        if (!cookie) {
+        if (!cookie || !cookie.includes('verifyToken')) {
           return res.status(402).json({
             status: 'fail',
             message: 'unauthorized!'
           });
         }
-        const verifyToken = cookie.split('=')[1];
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
         jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
             if (err) {
               return res.redirect('/');
@@ -122,13 +125,16 @@ exports.deleteProjectsHandler = async (req, res) => {
 exports.updateProjectsHandler = async (req, res) => {
     try {
     const cookie = req.headers.cookie
-    if(!cookie){
+    if(!cookie || !cookie.includes('verifyToken')){
         return res.status(400).json({
             status: 'fail',
             message: 'there is no cookie there!'
         })
     }
-    const verifyToken = cookie.split('=')[1]
+    const verifyToken = cookie
+    .split('; ')
+    .find(row => row.startsWith('verifyToken='))
+    .split('=')[1];
     if(!verifyToken){  
         return res.status(400).json({
             status: 'fail',
@@ -247,13 +253,16 @@ exports.getProjectById = async (req,res) =>{
 exports.offerProject = async(req,res)=>{
     try {
         const cookie = req.headers.cookie
-        if(!cookie){
+        if(!cookie || !cookie.includes('verifyToken')){
             return res.status(400).json({
                 status: 'fail',
                 message: 'there is no cookie there!'
             })
         }
-        const verifyToken = cookie.split('=')[1]
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
         if(!verifyToken){  
             return res.status(400).json({
                 status: 'fail',
@@ -348,7 +357,7 @@ exports.offerProject = async(req,res)=>{
 exports.getAllOffer = async(req,res)=>{
     try {
         const cookie = req.headers.cookie
-        if(!cookie){
+        if(!cookie || !cookie.includes('verifyToken')){
             return res.status(400).json({
                 status: 'fail',
                 message: 'there is no cookie there!'
@@ -368,7 +377,10 @@ exports.getAllOffer = async(req,res)=>{
                 message: 'project not found!'
             })
         }
-        const verifyToken = cookie.split('=')[1]
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
         if(!verifyToken){  
             return res.status(400).json({
                 status: 'fail',
@@ -398,7 +410,7 @@ exports.getAllOffer = async(req,res)=>{
 exports.acceptOffer = async(req,res)=>{
     try {
         const cookie = req.headers.cookie
-        if(!cookie){
+        if(!cookie || !cookie.includes('verifyToken')){
             return res.status(400).json({
                 status: 'fail',
                 message: 'there is no cookie there!'
@@ -416,7 +428,10 @@ exports.acceptOffer = async(req,res)=>{
             })
         }
         
-        const verifyToken = cookie.split('=')[1]
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
         if(!verifyToken){  
             return res.status(400).json({
                 status: 'fail',
@@ -499,7 +514,7 @@ exports.acceptOffer = async(req,res)=>{
 exports.cancelProjectbyFreelancer = async(req,res) =>{
     try {
         const cookie = req.headers.cookie
-        if(!cookie){
+        if(!cookie || !cookie.includes('verifyToken')){
             return res.status(400).json({
                 status: 'fail',
                 message: 'there is no cookie there!'
@@ -513,7 +528,10 @@ exports.cancelProjectbyFreelancer = async(req,res) =>{
                 message: 'project not found!'
             })
         }
-        const verifyToken = cookie.split('=')[1]
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
         if(!verifyToken){  
             return res.status(400).json({
                 status: 'fail',
@@ -570,7 +588,7 @@ exports.cancelProjectbyFreelancer = async(req,res) =>{
 exports.cancelProjectbyUser = async(req,res) =>{
     try {
         const cookie = req.headers.cookie
-        if(!cookie){
+        if(!cookie || !cookie.includes('verifyToken')){
             return res.status(400).json({
                 status: 'fail',
                 message: 'there is no cookie there!'
@@ -584,7 +602,10 @@ exports.cancelProjectbyUser = async(req,res) =>{
                 message: 'project not found!'
             })
         }
-        const verifyToken = cookie.split('=')[1]
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
         if(!verifyToken){  
             return res.status(400).json({
                 status: 'fail',
@@ -648,7 +669,7 @@ exports.cancelProjectbyUser = async(req,res) =>{
 exports.finishProjectByFreelancer = async(req,res)=>{
     try {
         const cookie = req.headers.cookie
-        if(!cookie){
+        if(!cookie || !cookie.includes('verifyToken')){
             return res.status(400).json({
                 status: 'fail',
                 message: 'there is no cookie there!'
@@ -662,7 +683,10 @@ exports.finishProjectByFreelancer = async(req,res)=>{
                 message: 'project not found!'
             })
         }
-        const verifyToken = cookie.split('=')[1]
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
         if(!verifyToken){  
             return res.status(400).json({
                 status: 'fail',
@@ -722,7 +746,7 @@ exports.finishProjectByFreelancer = async(req,res)=>{
 exports.finishProjectByUser = async(req,res)=>{
     try {
         const cookie = req.headers.cookie
-        if(!cookie){
+        if(!cookie || !cookie.includes('verifyToken')){
             return res.status(400).json({
                 status: 'fail',
                 message: 'there is no cookie there!'
@@ -738,7 +762,10 @@ exports.finishProjectByUser = async(req,res)=>{
                 message: 'project / Freelancers not found!'
             })
         }
-        const verifyToken = cookie.split('=')[1]
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
         if(!verifyToken){  
             return res.status(400).json({
                 status: 'fail',

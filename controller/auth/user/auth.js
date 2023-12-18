@@ -80,10 +80,13 @@ exports.verify = async (req,res) => {
   try{
   const {userVerificationCode,email} = req.body
   const cookie = req.headers.cookie;
-  if (!cookie) {
+  if (!cookie || !cookie.includes('saveData')) {
     return res.json({status: 'fail',message: 'fail'});
   }
-  const data = cookie.split('=')[1];
+  const data = cookie
+  .split('; ')
+  .find(row => row.startsWith('saveData='))
+  .split('=')[1];
   jwt.verify(data, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
   if(err){
     return res.status(404)
@@ -111,6 +114,9 @@ exports.verify = async (req,res) => {
         dataStorage.email,
         dataStorage.password,
         )
+        await photosTable.create({
+          usersId : consumerId,
+        })
         return res.status(201).json({
           status: 'sucess',
           message: 'register successfully!',
