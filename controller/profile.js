@@ -40,24 +40,28 @@ exports.profileUsers = async(req,res)=>{
     const user = await usersTable.findOne({ where: { username } }) 
     const freelancer = await freelancerTable.findOne({where: {username}});
     if (!verifyToken) {
-
+      
       return res.status(404).json({
         status: 'fail',
         message: 'unauthorized!'
       });   
     }
-      if(user){
-       return res.status(200).json({
-          name: user.fullName,
-          username: user.username,
-          email: user.email,
-          specialPoint : user.specialPoint,
-          level: user.level,
-          role: 'consumer',
-          profile: `https://storage.googleapis.com/skillshift-bucket/photos/${user.consumerId}`
-        });
-      }
-      if(freelancer){
+    if(user){
+      const usersId = user.consumerId
+      const findPhoto = await photosTable.findOne({where: {usersId}})
+      return res.status(200).json({
+        name: user.fullName,
+        username: user.username,
+        email: user.email,
+        specialPoint : user.specialPoint,
+        level: user.level,
+        role: 'consumer',
+        profile: findPhoto.imgUrl
+      });
+    }
+    if(freelancer){
+      const usersId = user.consumerId
+      const findPhoto = await photosTable.findOne({where: {usersId}})
       return res.status(200).json({
           name : freelancer.fullName,
           username: freelancer.username,
@@ -65,7 +69,7 @@ exports.profileUsers = async(req,res)=>{
           EXP: freelancer.experiencePoint,
           level: freelancer.level,
           role: 'freelancer',
-          profile : `https://storage.googleapis.com/skillshift-bucket/photos/${freelancer.freelancer_id}`
+          profile : findPhoto.imgUrl
         });
       }
       if(!user || !freelancer){
