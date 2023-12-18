@@ -60,7 +60,7 @@ exports.profileUsers = async(req,res)=>{
       });
     }
     if(freelancer){
-      const usersId = user.consumerId
+      const usersId = freelancer.freelancer_id
       const findPhoto = await photosTable.findOne({where: {usersId}})
       return res.status(200).json({
           name : freelancer.fullName,
