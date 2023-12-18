@@ -83,7 +83,6 @@ exports.profileUsers = async(req,res)=>{
   exports.profiles = async(req,res)=>{
     try {
       const cookie = await req.headers.cookie;
-      // const test = cookie.verifyToken;
       if(!cookie || !cookie.includes('verifyToken')){
         return res.status(400)
         .json({
@@ -102,8 +101,6 @@ exports.profileUsers = async(req,res)=>{
           message: 'unauthorized!'
         });
       }
-      // console.log(test)
-      console.log(verifyToken)
       jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
         if (err) {
           return res.status(404).json({
