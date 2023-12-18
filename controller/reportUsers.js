@@ -8,7 +8,7 @@ const reportTable = require('../models/tables/reportTable');
 const reportingUsers = async (req,res) =>{
     try {
         const cookie = req.headers.cookie;
-        if(!cookie){
+        if(!cookie || !cookie.includes('verifyToken')){
             return res.status(401).json({
                 status: 'failed',
                 message: 'there is no cookie'

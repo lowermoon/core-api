@@ -14,7 +14,7 @@ const { alreadyRated, createRating } = require("../models/functions/rating");
 exports.newProjectHandler = async (req, res) => {
     try {
         const cookie = await req.headers.cookie;
-        if (!cookie) {
+        if (!cookie || !cookie.includes('verifyToken')) {
           return res.status(402).json({
             status: 'fail',
             message: 'unauthorized!'
@@ -125,7 +125,7 @@ exports.deleteProjectsHandler = async (req, res) => {
 exports.updateProjectsHandler = async (req, res) => {
     try {
     const cookie = req.headers.cookie
-    if(!cookie){
+    if(!cookie || !cookie.includes('verifyToken')){
         return res.status(400).json({
             status: 'fail',
             message: 'there is no cookie there!'
@@ -253,7 +253,7 @@ exports.getProjectById = async (req,res) =>{
 exports.offerProject = async(req,res)=>{
     try {
         const cookie = req.headers.cookie
-        if(!cookie){
+        if(!cookie || !cookie.includes('verifyToken')){
             return res.status(400).json({
                 status: 'fail',
                 message: 'there is no cookie there!'
@@ -357,7 +357,7 @@ exports.offerProject = async(req,res)=>{
 exports.getAllOffer = async(req,res)=>{
     try {
         const cookie = req.headers.cookie
-        if(!cookie){
+        if(!cookie || !cookie.includes('verifyToken')){
             return res.status(400).json({
                 status: 'fail',
                 message: 'there is no cookie there!'
@@ -410,7 +410,7 @@ exports.getAllOffer = async(req,res)=>{
 exports.acceptOffer = async(req,res)=>{
     try {
         const cookie = req.headers.cookie
-        if(!cookie){
+        if(!cookie || !cookie.includes('verifyToken')){
             return res.status(400).json({
                 status: 'fail',
                 message: 'there is no cookie there!'
@@ -514,7 +514,7 @@ exports.acceptOffer = async(req,res)=>{
 exports.cancelProjectbyFreelancer = async(req,res) =>{
     try {
         const cookie = req.headers.cookie
-        if(!cookie){
+        if(!cookie || !cookie.includes('verifyToken')){
             return res.status(400).json({
                 status: 'fail',
                 message: 'there is no cookie there!'
@@ -588,7 +588,7 @@ exports.cancelProjectbyFreelancer = async(req,res) =>{
 exports.cancelProjectbyUser = async(req,res) =>{
     try {
         const cookie = req.headers.cookie
-        if(!cookie){
+        if(!cookie || !cookie.includes('verifyToken')){
             return res.status(400).json({
                 status: 'fail',
                 message: 'there is no cookie there!'
@@ -669,7 +669,7 @@ exports.cancelProjectbyUser = async(req,res) =>{
 exports.finishProjectByFreelancer = async(req,res)=>{
     try {
         const cookie = req.headers.cookie
-        if(!cookie){
+        if(!cookie || !cookie.includes('verifyToken')){
             return res.status(400).json({
                 status: 'fail',
                 message: 'there is no cookie there!'
@@ -746,7 +746,7 @@ exports.finishProjectByFreelancer = async(req,res)=>{
 exports.finishProjectByUser = async(req,res)=>{
     try {
         const cookie = req.headers.cookie
-        if(!cookie){
+        if(!cookie || !cookie.includes('verifyToken')){
             return res.status(400).json({
                 status: 'fail',
                 message: 'there is no cookie there!'

@@ -9,7 +9,7 @@ const ratingTable = require("../models/tables/ratingTable")
 exports.ratingFreelancers = async (req,res) =>{
     try {
         const cookie = req.headers.cookie
-        if(!cookie){
+        if(!cookie || !cookie.includes('verifyToken')){
             return res.status(400).json({
                 status: 'fail',
                 message: 'there is no cookie there!'
@@ -121,7 +121,7 @@ exports.ratingFreelancers = async (req,res) =>{
 exports.showAllRating = async (req,res) =>{
     try {
         const cookie = req.headers.cookie
-        if(!cookie){
+        if(!cookie || !cookie.includes('verifyToken')){
             return res.status(400).json({
                 status: 'fail',
                 message: 'there is no cookie there!'
@@ -175,7 +175,7 @@ exports.showAllRating = async (req,res) =>{
 exports.totalRating = async (req,res) =>{
     try {
         const cookie = req.headers.cookie
-        if(!cookie){
+        if(!cookie || !cookie.includes('verifyToken')){
             return res.status(400).json({
                 status: 'fail',
                 message: 'there is no cookie there!'
