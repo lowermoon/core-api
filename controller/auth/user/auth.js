@@ -46,7 +46,8 @@ exports.loginUsers = async(req,res)=>{
       return res.cookie('verifyToken',token,{
         httpOnly: true,
         maxAge: 24*60*60*7000,
-        secure: true
+        secure: true,
+        sameSite: 'none'
       })
       .status(201).setHeader('Content-Type', 'application/json')
       //sending data to FE
