@@ -6,7 +6,8 @@ const offerProjects = async (
   freelancerName,
   offer_price,
   offer_desc,
-  freelancerId
+  freelancerId,
+  imgUrl
 ) => {
   try {
     offerProjectsTable.create({
@@ -16,6 +17,7 @@ const offerProjects = async (
       offer_price,
       offer_desc,
       freelancerId,
+      imgUrl
     });
   } catch (error) {
     return console.log(error)
@@ -26,7 +28,7 @@ const offerProjects = async (
 
 const allOfferProjects = async (project_id) => {
     try {
-        const offerProjects = await offerProjectsTable.findAll({attributes: ['freelancerName','offer_price','offer_desc'],where: {project_id}});
+        const offerProjects = await offerProjectsTable.findAll({attributes: ['freelancerName','offer_price','offer_desc','imgUrl'],where: {project_id}});
         
         return offerProjects;
     } catch (error) {

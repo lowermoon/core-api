@@ -7,7 +7,7 @@ const activeProjectsTable = require("../tables/activeProjectsTable");
 // --------------------------------------------------- PROJECTS TABLE FUNCTIONS
 const newProject = async (data) => {
     const project_id = 'projects_'+nanoid(16);
-    const { project_name, project_desc, user_id, deadline, project_category } = data;
+    const { project_name, project_desc, user_id, deadline, project_category,imgUrl } = data;
     if(user_id === "") {
         return false;
     }
@@ -30,7 +30,8 @@ const newProject = async (data) => {
         project_desc: project_desc,
         user_id: user_id,
         deadline: deadline,
-        project_category: project_category
+        project_category: project_category,
+        imgUrl : imgUrl
     };
     projectsTable.create(newData);
     return true;
