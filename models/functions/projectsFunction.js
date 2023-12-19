@@ -18,13 +18,10 @@ const newProject = async (data) => {
             user_id: user_id
         }
     });
-    const isActive = await activeProjectsTable.findOne({where: {project_id}})
-    if(result || !isActive){
+    if(result){
         return false;
     }
-    if(isActive.project_status == "pending_by_freelancer" || isActive.project_status == "pending_by_consumer" || isActive.project_status == 'active'){
-        return false;
-    };
+
 
     // Make a new project data
     const newData = {
