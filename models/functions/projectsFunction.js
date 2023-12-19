@@ -2,9 +2,11 @@ const { Op } = require("sequelize");
 const db = require("../../dbconfig/index");
 const projectsTable = require("../tables/projectsTable");
 const { nanoid } = require("nanoid");
+const activeProjectsTable = require("../tables/activeProjectsTable");
 
 // --------------------------------------------------- PROJECTS TABLE FUNCTIONS
 const newProject = async (data) => {
+    const project_id = 'projects_'+nanoid(16);
     const { project_name, project_desc, user_id, deadline, project_category } = data;
     if(user_id === "") {
         return false;
@@ -16,12 +18,17 @@ const newProject = async (data) => {
             user_id: user_id
         }
     });
-    if(result){
+    const isActive = await activeProjectsTable.findOne({where: {project_id}})
+    if(result || !isActive){
+        return false;
+    }
+    if(isActive.project_status == "pending_by_freelancer" || isActive.project_status == "pending_by_consumer" || isActive.project_status == 'active'){
         return false;
     };
+
     // Make a new project data
     const newData = {
-        project_id: 'projects_'+nanoid(16),
+        project_id,
         project_name: project_name,
         project_desc: project_desc,
         user_id: user_id,
