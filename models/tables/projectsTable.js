@@ -23,7 +23,7 @@ const projectsTable = db.define('projects', {
         notNull: false
     },
     project_category: {
-        type: DataTypes.JSON,
+        type: DataTypes.ARRAY(DataTypes.STRING),
         notNull: false
     },
     imgUrl : {
