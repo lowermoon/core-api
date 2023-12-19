@@ -56,14 +56,17 @@ exports.newProjectHandler = async (req, res) => {
                     project_category: project_category
                 };
                 
+                
                 const result = await newProject(data);
+
                 if(!result){
-                    return res
-                    .status(400).json({status: "failed", message: "You are already posted a project, you can only post 1 project each!"});
-                }else{
-                    return res
-                    .status(200).json({status: "success", message: "Success create a new project!", data: data});
-                }
+                    return res.status(400).json({
+                    status: 'fail',
+                    message: 'you already create project!'
+                })
+                } 
+                return res.status(200).json({status: "success", message: "Success create a new project!", data: data});
+                
             }
         })
 }catch(error){
@@ -447,6 +450,12 @@ exports.acceptOffer = async(req,res)=>{
             }  
             const username = decoded.username
             const user = await usersTable.findOne({where: {username}})
+            if(!user){
+                return res.status(404).json({
+                    status: 'fail',
+                    message: 'user not found!'
+                })
+            }
             const user_id = user.consumerId
             if(user_id !== findProject.user_id){
                 return res.status(404).json({
@@ -807,6 +816,7 @@ exports.finishProjectByUser = async(req,res)=>{
             await activeProjectsTable.update({project_status},{where: {project_id,freelancer_id,user_id}})
             await freelancerTable.increment({experiencePoint:experience},{where: {freelancer_id}})
             await usersTable.increment({specialPoint : point},{where: {consumerId:user_id}})
+            await projectsTable.destroy({where: {project_id,user_id}})
             return res.status(200).json({
                 status: 'success',
                 message: 'project complete!',
