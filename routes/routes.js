@@ -15,7 +15,6 @@ const { ratingFreelancers, showAllRating, totalRating } = require('../controller
 const reportingUsers = require('../controller/reportUsers.js');
 const { scanFaceId } = require('../controller/scanFoto.js');
 const  {profilesFreelancer, updateProfileFreelance}  = require('../controller/auth/freelancer/profileFreelancer.js');
-
 const router = express.Router();
 
 
@@ -32,6 +31,7 @@ router.get('/', async (req, res) => {
 
   router.get('/home', verify.verificationToken);
 
+  router.get('/checkToken', verify.checkExp)
 router.get('/register',(req,res)=>{
     res.render('register')
 })
