@@ -257,6 +257,67 @@ exports.getProjectById = async (req,res) =>{
     }
 }
 
+exports.getAllProjectUser = async(req,res)=>{
+    try {
+        const cookie = req.headers.cookie;
+        if(!cookie || !cookie.includes('verifyToken')){
+            return res.status(400).json({
+                status: 'fail',
+                message: 'there is no cookie there!'
+            })
+        }
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
+        if(!verifyToken){  
+            return res.status(400).json({
+                status: 'fail',
+                message: 'unauthorized!'
+            })
+        }
+        jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
+            if(err){
+                return res.status(404).json({
+                    status: 'fail',
+                    message: err
+                })
+            }
+            const username = decoded.username
+            const user = await usersTable.findOne({where: {username}})
+            if(!user){
+                return res.status(404).json({
+                    status: 'fail',
+                    message: 'user not found!'
+                })
+            }
+            const user_id = user.consumerId
+            const project = await projectsTable.findAll({where: {user_id}})
+            if(!project){
+                return res.status(404).json({
+                    status: 'fail',
+                    message: 'project not found!'
+                })
+            }
+            return res.status(200).json({
+                status: 'success',
+                message: 'success get all project',
+                result: {
+                    ...project
+                }
+            })
+            })
+
+        
+    } catch (error) {
+        return res.status(500).json({
+            status: 'fail',
+            message: 'Internal server error'
+        
+        })
+    }
+}
+
 exports.offerProject = async(req,res)=>{
     try {
         const cookie = req.headers.cookie

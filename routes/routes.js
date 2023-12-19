@@ -72,6 +72,7 @@ router.get('/verify',(req,res)=>{
   // query project_id & freelancer_id
   router.post('/acceptOffer',projects.acceptOffer)
   
+  router.get('/projectUser', projects.getAllProjectUser)
   
   //  ============================= POST ROUTER ========================================== //
   
