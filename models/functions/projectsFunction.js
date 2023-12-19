@@ -90,7 +90,7 @@ const searchProjectsFilter = async (filter, value) => {
 
 const allProject = async () =>{
     try {
-        const project = projectsTable.findAll({order: [["createdAt","DESC"]],attributes:["project_id","user_id","project_name","project_desc","deadline","project_category"]})
+        const project = projectsTable.findAll({attributes:["project_id","user_id","project_name","project_desc","deadline","project_category","imgUrl"]})
         if(project){
             return project;
         }
