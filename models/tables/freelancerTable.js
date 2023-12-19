@@ -46,16 +46,13 @@ const freelancerTable = db.define('freelancer', {
     socialMedia: {
         type: DataTypes.STRING,
     },
-    Comment:{
-        type: DataTypes.STRING,
-    },
     CreditQ:{
         type: DataTypes.STRING,
         defaultValue: '0',
     }
 });
 
-freelancerTable.sync().then(() => {
+freelancerTable.sync({alter:true}).then(() => {
     console.log('Freelancer table is synced!');
 })
 

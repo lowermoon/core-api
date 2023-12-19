@@ -20,9 +20,12 @@ const offerProjectsTable = db.define('offerProjects', {
     freelancerId: {
         type: DataTypes.STRING
     },  
+    imgUrl: {
+        type: DataTypes.STRING
+    }
 });
 
-offerProjectsTable.sync({alter:true}).then(() => {
+offerProjectsTable.sync().then(() => {
     console.log('offerProjects table is synchronized!')
 });
 

@@ -13,11 +13,13 @@ dotenv.config();
 const usersTable = require('../../../models/tables/usersTable');
 const freelancerTable = require('../../../models/tables/freelancerTable');
 
+
 // Functions
 const {createUser,findUser, usernameConsumer, emailConsumer} = require('../../../models/functions/usersFunction');
 const {createFreelancer,updateFreelancer,findFreelancer, usernameFreelancer, emailFreelancer} = require('../../../models/functions/freelancerFunction');
 const createRecords  = require('../../../models/functions/createRecords');
 const  {mailOptions,transporter}  = require('../../../middleware/email');
+const photosTable = require('../../../models/tables/photosTable');
 
 
 
@@ -114,7 +116,7 @@ exports.verify = async (req,res) => {
         dataStorage.email,
         dataStorage.password,
         )
-        await photosTable.create({
+        photosTable.create({
           usersId : consumerId,
         })
         return res.status(201).json({

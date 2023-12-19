@@ -8,6 +8,7 @@ const { createActiveProjects, isActive, getProjectActive } = require("../models/
 const offerProjectsTable = require("../models/tables/offerProjectsTable");
 const activeProjectsTable = require("../models/tables/activeProjectsTable");
 const { alreadyRated, createRating } = require("../models/functions/rating");
+const photosTable = require("../models/tables/photosTable");
 
 
 // CREATE READ UPDATE DELETE FOR PROJECTS TABLE
@@ -48,12 +49,15 @@ exports.newProjectHandler = async (req, res) => {
                     return res
                     .status(404).json({status: "failed", message: "There's nothing to be requested in the body data!"})
                 }
+                const findImg = await photosTable.findOne({where: {usersId: user.consumerId}})
+                const imgUrl = findImg.imgUrl
                 const data = {
                     project_name: project_name,
                     project_desc: project_desc,
                     user_id: user.consumerId,
                     deadline: deadline,
-                    project_category: project_category
+                    project_category: project_category,
+                    imgUrl
                 };
                 
                 
@@ -316,14 +320,18 @@ exports.offerProject = async(req,res)=>{
                 })
             }
             if(!activeProject){
+                const findImg = await photosTable.findOne({where: {usersId: freelancerId}})
+                const imgUrl = findImg.imgUrl
                 await offerProjects(
                     project_id,
                     user_id,
                     freelancerName,
                     offer_price,
                     offer_desc,
-                    freelancerId
+                    freelancerId,
+                    imgUrl
                     )
+                    
                     return res.status(200).json({
                         status: 'success',
                         message: 'success offer project'
