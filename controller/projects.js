@@ -219,7 +219,7 @@ exports.getAllProject = async (req,res) =>{
         if(error){
             return res.status(500).json({
                 status: 'fail',
-                message: 'Internal server error'
+                message: error
               });
         }
     }

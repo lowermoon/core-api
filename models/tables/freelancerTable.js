@@ -52,7 +52,7 @@ const freelancerTable = db.define('freelancer', {
     }
 });
 
-freelancerTable.sync({alter:true}).then(() => {
+freelancerTable.sync().then(() => {
     console.log('Freelancer table is synced!');
 })
 
