@@ -118,17 +118,14 @@ exports.deleteProjectsHandler = async (req, res) => {
         return res
         .status(404).json({status: "failed", message: "There's nothing to be requested in the body data!"});
     };
-    const data = {
-        project_id: project_id,
-    };
-    const isProjectDeleted = await deleteProject(data);
+    const isProjectDeleted = await deleteProject(project_id);
     if(!isProjectDeleted) {
         return res
         .status(404)
         .json({status: "failed", message: "There's an error to delete the project, either it's project id or user's id", data: data});
     }
     return res
-    .status(200).json({status: "success", message: "Deleting the project data is succeeded!", data: data});
+    .status(200).json({status: "success", message: "Deleting the project data is succeeded!", data: project_id});
 }
 
 exports.updateProjectsHandler = async (req, res) => {
