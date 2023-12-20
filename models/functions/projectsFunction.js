@@ -37,12 +37,12 @@ const newProject = async (data) => {
     return true;
 };
 
-const deleteProject = async (user_id) => {
-    const isDataExist = await projectsTable.findOne({where: {user_id}})
+const deleteProject = async (project_id) => {
+    const isDataExist = await projectsTable.findOne({where: {project_id}})
     if(!isDataExist) {
         return false;
     }
-    projectsTable.destroy({ where: {user_id}})
+    projectsTable.destroy({ where: {project_id}})
     return true;
 };
 

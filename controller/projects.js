@@ -122,7 +122,7 @@ exports.deleteProjectsHandler = async (req, res) => {
     if(!isProjectDeleted) {
         return res
         .status(404)
-        .json({status: "failed", message: "There's an error to delete the project, either it's project id or user's id", data: data});
+        .json({status: "failed", message: "There's an error to delete the project, either it's project id or user's id", data: project_id});
     }
     return res
     .status(200).json({status: "success", message: "Deleting the project data is succeeded!", data: project_id});
