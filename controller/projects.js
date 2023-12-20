@@ -113,7 +113,7 @@ exports.searchProjectsHandler =  async (req, res) => {
 }
 
 exports.deleteProjectsHandler = async (req, res) => {
-    const { project_id, user_id } = req.body;
+    const project_id  = req.query.project_id;
     if(project_id == "" || user_id == "" || typeof project_id == "undefined" || typeof user_id == "undefined") {
         return res
         .status(404).json({status: "failed", message: "There's nothing to be requested in the body data!"});
