@@ -3,7 +3,6 @@ const db = require("../../dbconfig/index");
 const projectsTable = require("../tables/projectsTable");
 const { nanoid } = require("nanoid");
 const activeProjectsTable = require("../tables/activeProjectsTable");
-const categoryTable = require("../tables/categoryTable");
 
 // --------------------------------------------------- PROJECTS TABLE FUNCTIONS
 const newProject = async (data) => {

@@ -9,7 +9,6 @@ const offerProjectsTable = require("../models/tables/offerProjectsTable");
 const activeProjectsTable = require("../models/tables/activeProjectsTable");
 const { alreadyRated, createRating } = require("../models/functions/rating");
 const photosTable = require("../models/tables/photosTable");
-const categoryTable = require("../models/tables/categoryTable");
 
 
 // CREATE READ UPDATE DELETE FOR PROJECTS TABLE
