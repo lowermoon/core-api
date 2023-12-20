@@ -124,6 +124,7 @@ exports.profileUsers = async(req,res)=>{
             username: userConsumer.username,
             email: userConsumer.email,
             role: 'consumer',
+            point: userConsumer.specialPoint,
             profile : photoUriConsumer.imgUrl
           });
         }
