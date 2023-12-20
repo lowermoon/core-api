@@ -399,7 +399,7 @@ exports.getAllProjectUser = async(req,res)=>{
             if(project.length === 0){
                 return res.status(404).json({
                     status: 'fail',
-                    message: 'project not found!'
+                    message: 'you not create project yet!'
                 })
             }
             return res.status(200).json({
