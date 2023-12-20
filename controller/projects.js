@@ -120,7 +120,6 @@ exports.deleteProjectsHandler = async (req, res) => {
     };
     const data = {
         project_id: project_id,
-        user_id: user_id
     };
     const isProjectDeleted = await deleteProject(data);
     if(!isProjectDeleted) {
