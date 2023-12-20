@@ -396,7 +396,7 @@ exports.getAllProjectUser = async(req,res)=>{
             const user_id = user.consumerId
             const project = await projectsTable.findAll({where: {user_id}})
             const findCategory = await categoryTable.findAll({attributes: ['category','project_id'],where:{user_id}})
-            if(!project){
+            if(project.length === 0){
                 return res.status(404).json({
                     status: 'fail',
                     message: 'project not found!'

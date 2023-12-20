@@ -56,10 +56,11 @@ router.get('/verify',(req,res)=>{
       res.render('home/dashboard',{data});
   })
   router.post('/logout',(req,res)=>{
-      res.clearCookie('verifyToken');
-      res.json({
+      res.cookie('verifyToken', '', {maxAge: 0});
+      return res.status(200).json({
           status: 'success',
-          message: 'See You Later Nerd'})
+          message: 'Logged Out Successfully'
+        })
   })
   router.get('/allProject',projects.getAllProject)
 
