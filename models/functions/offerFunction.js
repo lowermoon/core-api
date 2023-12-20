@@ -3,20 +3,24 @@ const offerProjectsTable = require("../../models/tables/offerProjectsTable");
 const offerProjects = async (
   project_id,
   user_id,
+  project_name,
   freelancerName,
   offer_price,
   offer_desc,
   freelancerId,
+  category,
   imgUrl
 ) => {
   try {
     offerProjectsTable.create({
       project_id,
       user_id,
+      project_name,
       freelancerName,
       offer_price,
       offer_desc,
       freelancerId,
+      project_category : category,
       imgUrl
     });
   } catch (error) {
@@ -28,7 +32,7 @@ const offerProjects = async (
 
 const allOfferProjects = async (project_id) => {
     try {
-        const offerProjects = await offerProjectsTable.findAll({attributes: ['freelancerName','offer_price','offer_desc','imgUrl'],where: {project_id}});
+        const offerProjects = await offerProjectsTable.findAll({attributes: ['project_name','freelancerName','offer_price','offer_desc','project_category','imgUrl'],where: {project_id}});
         
         return offerProjects;
     } catch (error) {

@@ -44,9 +44,9 @@ exports.newProjectHandler = async (req, res) => {
                     return res
                     .status(404).json({status: "failed", message: "There's nothing to be requested in the body data!"})
                 }
-                const { project_name, project_desc, deadline } = req.body;
+                const { project_name, project_desc, deadline,project_category } = req.body;
 
-                if(!project_name || !project_desc || !deadline ) {
+                if(!project_name || !project_desc || !deadline || !project_category ) {
                     return res
                     .status(404).json({status: "failed", message: "There's nothing to be requested in the body data!"})
                 }
@@ -57,11 +57,15 @@ exports.newProjectHandler = async (req, res) => {
                     project_desc: project_desc,
                     user_id: user.consumerId,
                     deadline: deadline,
+                    project_category : project_category,
                     imgUrl
                 };
                 
-                
                 const ifSame = await projectsTable.findOne({where: {user_id: user.consumerId}})
+                if(!ifSame){
+                    await newProject(data);
+                    return res.status(200).json({status: "success", message: "Success create a new project!", data: data});
+                }
                 if(data.project_name !== ifSame.project_name){
                     await newProject(data);
                     return res.status(200).json({status: "success", message: "Success create a new project!", data: data});       
@@ -79,106 +83,6 @@ exports.newProjectHandler = async (req, res) => {
 } 
 }
 
-exports.categoryHandler = async (req, res) => {
-    try {
-        const cookie = await req.headers.cookie;
-        if (!cookie || !cookie.includes('verifyToken')) {
-            return res.status(402).json({
-                status: 'fail',
-                message: 'unauthorized!'
-            });
-        }
-        const verifyToken = cookie
-        .split('; ')
-        .find(row => row.startsWith('verifyToken='))
-        .split('=')[1];
-        const project_id = req.query.project_id;
-        const findProject = await projectsTable.findOne({where: {project_id}})
-        if(!findProject){
-            return res.status(400).json({
-                status: 'fail',
-                message: 'there is no project id!'
-            })
-        }
-        const category = req.body.category;
-        jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
-            if(err){
-                return res.status(404).json({
-                    status: 'fail',
-                    message: err
-                })
-            }
-            const username = decoded.username
-            const user = await usersTable.findOne({where: {username}})
-            const result = await projectsTable.findOne({where: {project_id,user_id: user.consumerId}});
-            if(!user){
-                return res.status(404).json({
-                    status: 'fail',
-                    message: 'u cannot access this!'
-                })
-            }
-            if(user.consumerId !== findProject.user_id){
-                return res.status(404).json({
-                    status: 'fail',
-                    message: 'u cannot access this!'
-                })
-            }
-            if(findProject.project_id !== result.project_id){
-                return res.status(404).json({
-                    status: 'fail',
-                    message: 'u cannot access this!'
-                })
-            }
-            await categoryTable.create({
-                category,
-                user_id: user.consumerId,
-                project_id: result.project_id
-            })
-            return res.status(200).json({
-                status: 'success',
-                message: 'success add category'
-            })
-        })
-    } catch (error) {
-        return res.status(500).json({
-            status: 'fail',
-            message: error
-        })
-    }
-}
-
-exports.getCategoryProject = async (req, res) => {
-    try {
-        const project_id = req.query.project_id;
-        const findProject = await projectsTable.findOne({where: {project_id}})
-        if(!findProject){
-            return res.status(400).json({
-                status: 'fail',
-                message: 'there is no project!'
-            })
-        }
-        const findCategory = await categoryTable.findAll({attributes: ['category','project_id'],where:{project_id}})
-        if(findCategory.length === 0){
-            return res.status(202).json({
-                status: 'success',
-                message: 'there is no category!'
-            })
-        }
-        return res.status(200).json({
-            status: 'success',
-            message: 'success get category',
-            result: {
-                findCategory
-            }
-        })
-    } catch (error) {
-        return res.status(500).json({
-            status: 'fail',
-            message: error
-        
-        })
-    }
-}
 
 exports.searchProjectsHandler =  async (req, res) => {
     const {by, value} = req.query;
@@ -281,7 +185,7 @@ exports.updateProjectsHandler = async (req, res) => {
             project_name,
             project_desc,
             deadline,
-            project_category,
+            project_category
         },{where:{project_id}})
         return res.status(200).json({
             status : 'success',
@@ -334,7 +238,6 @@ exports.getProjectById = async (req,res) =>{
                 message: 'there is no project id!'
             })
         }
-        const findCategory = await categoryTable.findAll({attributes: ['category'],where:{project_id}})
         const project = await getProjectById(project_id);
         if(project){
             return res.status(200)
@@ -343,7 +246,6 @@ exports.getProjectById = async (req,res) =>{
                 message: 'success get project',
                 result: {
                     project,
-                    findCategory
                 }
             })
         }
@@ -395,7 +297,6 @@ exports.getAllProjectUser = async(req,res)=>{
             }
             const user_id = user.consumerId
             const project = await projectsTable.findAll({where: {user_id}})
-            const findCategory = await categoryTable.findAll({attributes: ['category','project_id'],where:{user_id}})
             if(project.length === 0){
                 return res.status(404).json({
                     status: 'fail',
@@ -407,7 +308,6 @@ exports.getAllProjectUser = async(req,res)=>{
                 message: 'success get all project',
                 result: {
                     project,
-                    findCategory
                 }
             })
             })
@@ -474,8 +374,10 @@ exports.offerProject = async(req,res)=>{
                 })
             }
             const user_id = project.user_id
+            const project_name = project.project_name
             const freelancerName = freelancer.username
             const freelancerId = freelancer.freelancer_id
+            const category = project.project_category
             const activeProject = await isActive(project_id)
             const resultOffer = await alreadyOffer(project_id,freelancerId)
             if(resultOffer){
@@ -487,13 +389,16 @@ exports.offerProject = async(req,res)=>{
             if(!activeProject){
                 const findImg = await photosTable.findOne({where: {usersId: freelancerId}})
                 const imgUrl = findImg.imgUrl
+                
                 await offerProjects(
                     project_id,
                     user_id,
+                    project_name,
                     freelancerName,
                     offer_price,
                     offer_desc,
                     freelancerId,
+                    category,
                     imgUrl
                     )
                     
@@ -564,7 +469,7 @@ exports.getAllOffer = async(req,res)=>{
             })
         }
         const project = await allOfferProjects(project_id)
-        if(project.length === 0){
+        if(!project){
             return res.status(200).json({
                 status: 'success',
                 message: 'success get all offer',
@@ -697,7 +602,7 @@ exports.acceptOffer = async(req,res)=>{
             if(alreadyOffer){
                 return res.status(406).json({
                     status: 'fail',
-                    message: 'u already offer this project!'
+                    message: 'you already accept this offer!'
                 })
             }
             const offer = await findOffer(freelancer_id,project_id)
@@ -723,7 +628,7 @@ exports.acceptOffer = async(req,res)=>{
                 category
                 )
             
-            await offerProjectsTable.destroy({where: {project_id,freelancerId:freelancer_id}})
+            // await offerProjectsTable.destroy({where: {project_id,freelancerId:freelancer_id}})
             return res.status(200).json({
                 status: 'success',
                 message: 'success accept project',
@@ -736,6 +641,7 @@ exports.acceptOffer = async(req,res)=>{
                     project_status,
                     freelancer_id,
                     freelancer_name,
+                    category,
                     offer_price,
                 }
             })  
@@ -1046,7 +952,6 @@ exports.finishProjectByUser = async(req,res)=>{
             await activeProjectsTable.update({project_status},{where: {project_id,freelancer_id,user_id}})
             await freelancerTable.increment({experiencePoint:experience},{where: {freelancer_id}})
             await usersTable.increment({specialPoint : point},{where: {consumerId:user_id}})
-            await projectsTable.destroy({where: {project_id,user_id}})
             return res.status(200).json({
                 status: 'success',
                 message: 'project complete!',
