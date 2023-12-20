@@ -7,20 +7,20 @@ const activeProjectsTable = require("../tables/activeProjectsTable");
 // --------------------------------------------------- PROJECTS TABLE FUNCTIONS
 const newProject = async (data) => {
     const project_id = 'projects_'+nanoid(16);
-    const { project_name, project_desc, user_id, deadline, project_category,imgUrl } = data;
+    const { project_name, project_desc, user_id, deadline,imgUrl } = data;
     if(user_id === "") {
         return false;
     }
 
     // Checking if user is already post a project or not.
-    const result = await projectsTable.findOne({
-        where: {
-            user_id: user_id
-        }
-    });
-    if(result){
-        return false;
-    }
+    // const result = await projectsTable.findOne({
+    //     where: {
+    //         user_id: user_id
+    //     }
+    // });
+    // if(result){
+    //     return true;
+    // }
 
 
     // Make a new project data
@@ -30,7 +30,6 @@ const newProject = async (data) => {
         project_desc: project_desc,
         user_id: user_id,
         deadline: deadline,
-        project_category: project_category,
         imgUrl : imgUrl
     };
     projectsTable.create(newData);
@@ -90,7 +89,7 @@ const searchProjectsFilter = async (filter, value) => {
 
 const allProject = async () =>{
     try {
-        const project = projectsTable.findAll({attributes:["project_id","user_id","project_name","project_desc","deadline","project_category","imgUrl"]})
+        const project = projectsTable.findAll({attributes:["project_id","user_id","project_name","project_desc","deadline","imgUrl"]})
         if(project){
             return project;
         }
@@ -105,7 +104,7 @@ const updateProjects = async (data) => {
 
 const getProjectById = async (project_id) => {
     try {
-        const project = await projectsTable.findOne({where: {project_id},attributes:["project_id","user_id","project_name","project_desc","deadline","project_category"]});
+        const project = await projectsTable.findOne({where: {project_id},attributes:["project_id","user_id","project_name","project_desc","deadline"]});
         if(project){
             return project;
         }

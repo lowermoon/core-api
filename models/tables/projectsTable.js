@@ -22,10 +22,6 @@ const projectsTable = db.define('projects', {
         type: DataTypes.DATEONLY,
         notNull: false
     },
-    project_category: {
-        type: DataTypes.ARRAY(Sequelize.TEXT),
-        notNull: false
-    },
     imgUrl : {
         type: DataTypes.STRING,
         notNull: false
