@@ -618,11 +618,10 @@ exports.getAllOfferByFreelancer = async(req,res)=>{
                 })
             }
             const findOffer = await offerProjectsTable.findAll({where: {freelancerId: user.freelancer_id}})
-            if(findOffer.length === 0){
-                return res.status(200).json({
-                    status: 'success',
-                    message: 'success get all offer',
-                    result: 'you not offer any project'
+            if(!findOffer){
+                return res.status(402).json({
+                    status: 'fail',
+                    message: 'there is no offer!',
                 })
             }
             return res.status(200).json({
