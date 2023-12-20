@@ -583,6 +583,64 @@ exports.getAllOffer = async(req,res)=>{
     }
 }
 
+exports.getAllOfferByFreelancer = async(req,res)=>{
+    try {
+        const cookie = req.headers.cookie
+        if(!cookie || !cookie.includes('verifyToken')){
+            return res.status(400).json({
+                status: 'fail',
+                message: 'there is no cookie there!'
+            })
+        }
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
+        if(!verifyToken){  
+            return res.status(400).json({
+                status: 'fail',
+                message: 'unauthorized!'
+            })
+        }
+        jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
+            if(err){
+                return res.status(404).json({
+                    status: 'fail',
+                    message: err
+                })
+            }
+            const username = decoded.username
+            const user = await freelancerTable.findOne({where: {username}})
+            if(!user){
+                return res.status(404).json({
+                    status: 'fail',
+                    message: 'user not found!'
+                })
+            }
+            const findOffer = await offerProjectsTable.findAll({where: {freelancerId: user.freelancer_id}})
+            if(findOffer.length === 0){
+                return res.status(200).json({
+                    status: 'success',
+                    message: 'success get all offer',
+                    result: 'you not offer any project'
+                })
+            }
+            return res.status(200).json({
+                status: 'success',
+                message: 'success get all offer',
+                result: {
+                    findOffer
+                }
+            })
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: 'fail',
+            message: 'Internal server error'
+        })
+    }
+}
+
 exports.acceptOffer = async(req,res)=>{
     try {
         const cookie = req.headers.cookie

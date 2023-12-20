@@ -76,6 +76,7 @@ router.get('/verify',(req,res)=>{
 
   router.get('/getCategory', projects.getCategoryProject)
   
+  router.get('/getOfferFreelance', projects.getAllOfferByFreelancer)
   //  ============================= POST ROUTER ========================================== //
   
 
