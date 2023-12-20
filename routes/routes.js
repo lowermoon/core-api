@@ -73,6 +73,8 @@ router.get('/verify',(req,res)=>{
   router.post('/acceptOffer',projects.acceptOffer)
   
   router.get('/projectUser', projects.getAllProjectUser)
+
+  router.get('/getCategory', projects.getCategoryProject)
   
   //  ============================= POST ROUTER ========================================== //
   
@@ -87,6 +89,7 @@ router.get('/verify',(req,res)=>{
 
   //router project
   router.post('/newProject',projects.newProjectHandler)
+  router.post('/newCategory' , projects.categoryHandler)
   router.put('/updateProject',projects.updateProjectsHandler)
   router.delete('/deleteProject', projects.deleteProjectsHandler)
 
