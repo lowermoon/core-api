@@ -3,11 +3,12 @@ const db = require("../../dbconfig/index");
 const projectsTable = require("../tables/projectsTable");
 const { nanoid } = require("nanoid");
 const activeProjectsTable = require("../tables/activeProjectsTable");
+const categoryTable = require("../tables/categoryTable");
 
 // --------------------------------------------------- PROJECTS TABLE FUNCTIONS
 const newProject = async (data) => {
     const project_id = 'projects_'+nanoid(16);
-    const { project_name, project_desc, user_id, deadline,imgUrl } = data;
+    const { project_name, project_desc, user_id, deadline,project_category,imgUrl } = data;
     if(user_id === "") {
         return false;
     }
@@ -30,9 +31,10 @@ const newProject = async (data) => {
         project_desc: project_desc,
         user_id: user_id,
         deadline: deadline,
+        project_category: project_category,
         imgUrl : imgUrl
     };
-    projectsTable.create(newData);
+    await projectsTable.create(newData);
     return true;
 };
 
@@ -89,7 +91,9 @@ const searchProjectsFilter = async (filter, value) => {
 
 const allProject = async () =>{
     try {
-        const project = projectsTable.findAll({attributes:["project_id","user_id","project_name","project_desc","deadline","imgUrl"]})
+        const project = projectsTable.findAll({
+            attributes:["project_id","user_id","project_name","project_desc","deadline","project_category","imgUrl"],
+        })
         if(project){
             return project;
         }
@@ -104,7 +108,7 @@ const updateProjects = async (data) => {
 
 const getProjectById = async (project_id) => {
     try {
-        const project = await projectsTable.findOne({where: {project_id},attributes:["project_id","user_id","project_name","project_desc","deadline"]});
+        const project = await projectsTable.findOne({where: {project_id},attributes:["project_id","user_id","project_name","project_desc","project_category","deadline"]});
         if(project){
             return project;
         }

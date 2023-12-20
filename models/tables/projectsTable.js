@@ -22,6 +22,10 @@ const projectsTable = db.define('projects', {
         type: DataTypes.DATEONLY,
         notNull: false
     },
+    project_category:{
+        type: DataTypes.STRING,
+        notNull: false
+    },
     imgUrl : {
         type: DataTypes.STRING,
         notNull: false
