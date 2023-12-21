@@ -7,6 +7,7 @@ const createRecords  = require('../../../models/functions/createRecords');
 const  {mailOptions,transporter}  = require('../../../middleware/email');
 const reportTable = require('../../../models/tables/reportTable');
 const photosTable = require('../../../models/tables/photosTable');
+const preference = require('../../../models/tables/preferenceTable');
 
 
 
@@ -29,13 +30,15 @@ exports.loginFreelancer = async(req,res)=>{
           })
         }
         const checkStatus = await reportTable.findOne({where: {id:freelancer.freelancer_id}}) 
-        if(!checkStatus && freelancer){
+        const checkPreference = await preference.findOne({where: {freelancer_id:freelancer.freelancer_id}})
+        if(!checkStatus && freelancer ){
           
             const ID = freelancer.freelancer_id
             const role = "freelancer"
             
             const token = jwt.sign({username},process.env.ACCESS_TOKEN_SECRET,{expiresIn: '7d'})
             createRecords(ID,role)
+
             return res.cookie('verifyToken',token,{
               httpOnly: true,
               maxAge: 24*60*60*7000,
@@ -49,7 +52,7 @@ exports.loginFreelancer = async(req,res)=>{
           status: 'success',
           message: 'success login',
           result: {
-          
+                preference : checkPreference ? 'true' : 'false',
                 fullName: freelancer.name,
                 username: freelancer.username,
                 email: freelancer.email,
@@ -60,7 +63,7 @@ exports.loginFreelancer = async(req,res)=>{
               }
             })
           }
-            if(checkStatus.status == 'warning' && freelancer){
+            if(checkStatus.status == 'warning' && freelancer ){
 
             const ID = freelancer.freelancer_id
             const role = "freelancer"
@@ -77,7 +80,7 @@ exports.loginFreelancer = async(req,res)=>{
               status : 'success',
               message: `success login ,you got ${checkStatus.report} report`,
               result:{
-
+                preference : checkPreference ? 'true' : 'false',
                 fullName: freelancer.name,
                 username: freelancer.username,
                 email: freelancer.email,
@@ -91,7 +94,7 @@ exports.loginFreelancer = async(req,res)=>{
               }); 
           }
         
-        if(checkStatus.status == 'banned' && freelancer){
+        if(checkStatus.status == 'banned' && freelancer ){
             return res.status(401).setHeader('Content-Type', 'application/json') 
             // sending the data to the FE
             .json({
