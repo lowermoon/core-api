@@ -2,7 +2,7 @@ const {DataTypes} = require('sequelize');
 const db = require('../../dbconfig/index');
 
 const preference = db.define('preference', {
-    freelance_id:{
+    freelancer_id:{
         type: DataTypes.STRING,
         allowNull: false,
     },
@@ -38,7 +38,7 @@ const preference = db.define('preference', {
         type: DataTypes.STRING,
         allowNull: true,
     },
-    Advanture: {
+    Adventure: {
         type: DataTypes.STRING,
         allowNull: true,
     },
