@@ -41,37 +41,19 @@ exports.addCategory = async (req, res) => {
         }
         const {MOBA,RPG,Horror,OpenWorld,Sports,Puzzle,FPS,BattleRoyal,Adventure} = req.body;
 
-        if(MOBA === true || RPG === true || Horror === true || OpenWorld === true || Sports === true || Puzzle === true || FPS === true || BattleRoyal === true || Adventure === true){
-            const newData = {
-                MOBA: 5,
-                RPG: 5,
-                Horror: 5,
-                OpenWorld: 5,
-                Sports: 5,
-                Puzzle: 5,
-                FPS: 5,
-                BattleRoyal: 5,
-                Adventure: 5
-            }
-            await preference.create(newData).then((result) => {
-                return res.status(200).json({
-                    status: 'success',
-                    message: 'add category',
-                    data: result
-                })
-            })
-            // const assignValue = (category) => category ? 5 : Math.floor(Math.random() * 10);
-// const newData = {
-//     MOBA: assignValue(MOBA),
-//     RPG: assignValue(RPG),
-//     Horror: assignValue(Horror),
-//     OpenWorld: assignValue(OpenWorld),
-//     Sports: assignValue(Sports),
-//     Puzzle: assignValue(Puzzle),
-//     FPS: assignValue(FPS),
-//     BattleRoyal: assignValue(BattleRoyal),
-//     Adventure: assignValue(Adventure)
-// }
+        const newData = {
+            MOBA: MOBA ? 5 : Math.floor(Math.random() * 4 + 1),
+            RPG: RPG ? 5 : Math.floor(Math.random() * 4 + 1),
+            Horror: Horror ? 5 : Math.floor(Math.random() * 4 + 1),
+            OpenWorld: OpenWorld ? 5 : Math.floor(Math.random() * 4 + 1),
+            Sports: Sports ? 5 : Math.floor(Math.random() * 4 + 1),
+            Puzzle: Puzzle ? 5 : Math.floor(Math.random() * 4 + 1),
+            FPS: FPS ? 5 : Math.floor(Math.random() * 4 + 1),
+            BattleRoyal: BattleRoyal ? 5 : Math.floor(Math.random() * 4 + 1),
+            Adventure: Adventure ? 5 : Math.floor(Math.random() * 4 + 1)
+        }
+
+        
         jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decode) => {  
             if(err){
                 return res.status(404).json({
