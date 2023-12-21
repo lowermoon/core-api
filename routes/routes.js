@@ -15,6 +15,7 @@ const { ratingFreelancers, showAllRating, totalRating } = require('../controller
 const reportingUsers = require('../controller/reportUsers.js');
 const { scanFaceId } = require('../controller/scanFoto.js');
 const  {profilesFreelancer, updateProfileFreelance}  = require('../controller/auth/freelancer/profileFreelancer.js');
+const { getCategory } = require('../controller/category.js');
 const router = express.Router();
 
 
@@ -62,6 +63,9 @@ router.get('/verify',(req,res)=>{
           message: 'Logged Out Successfully'
         })
   })
+
+  router.get('/category',getCategory)
+
   router.get('/allProject',projects.getAllProject)
 
   // query project_id

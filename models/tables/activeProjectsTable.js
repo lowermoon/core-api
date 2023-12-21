@@ -46,7 +46,7 @@ const activeProjectsTable = db.define('activeProjects', {
     },
 })
 
-activeProjectsTable.sync({alter:true}).then(() => {
+activeProjectsTable.sync().then(() => {
     console.log('activeProjectsTable sync!')
 })
 
