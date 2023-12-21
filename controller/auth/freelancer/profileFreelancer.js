@@ -3,82 +3,32 @@ const bcrypt = require('bcrypt')
 
 
 // Tables
-const usersTable = require('../models/tables/usersTable');
-const freelancerTable = require('../models/tables/freelancerTable');
-const skillsTables = require('../models/tables/skills')
+const usersTable = require('../../../models/tables/usersTable');
+const freelancerTable = require('../../../models/tables/freelancerTable');
+const skillsTables = require('../../../models/tables/skills')
 
 // Functions
-const {createUser,findUser,updateUser} = require('../models/functions/usersFunction');
-const {createFreelancer,updateFreelancer,findFreelancer} = require('../models/functions/freelancerFunction');
-const createSkills = require('../models/functions/createSkills')
+const {createUser,findUser,updateUser} = require('../../../models/functions/usersFunction');
+const {createFreelancer,updateFreelancer,findFreelancer} = require('../../../models/functions/freelancerFunction');
+const createSkills = require('../../../models/functions/createSkills')
 const multer = require('multer')
-const { uploadPhoto } = require('../models/functions/uploadFunction')
-
-exports.profileUsers = async(req,res)=>{
-  const { username } = req.params;
-  const cookie = await req.headers.cookie;
-  if(!cookie){
-    return res.status(400)
-    .json({
-      status:'fail',
-      message: 'there is no cookie here!'
-    })
-  }
-  const verifyToken = cookie.split('=')[1];
-  try {
-    const user = await usersTable.findOne({ where: { username } }) 
-    const freelancer = await freelancerTable.findOne({where: {username}});
-    if (!verifyToken) {
-
-      return res.status(404).json({
-        status: 'fail',
-        message: 'unauthorized!'
-      });   
-    }
-      if(user){
-       return res.status(200).json({
-          name: user.fullName,
-          username: user.username,
-          email: user.email,
-          specialPoint : user.specialPoint,
-          level: user.level,
-          role: 'consumer'
-        });
-      }
-      if(freelancer){
-      return res.status(200).json({
-          name : freelancer.fullName,
-          username: freelancer.username,
-          email: freelancer.email,
-          EXP: freelancer.experiencePoint,
-          level: freelancer.level,
-          role: 'freelancer'
-        });
-      }
-      if(!user || !freelancer){
-       return res.status(404).json({ message: 'User tidak ditemukan!' });
-      }
-    } catch (error) {
-      console.error(error); 
-     return res.status(500).json({ 
-        status: 'fail',
-        message: 'Internal server error' });
-    }
-  };
-  
+const { uploadPhoto } = require('../../../models/functions/uploadFunction')
 
 
-  exports.profiles = async(req,res)=>{
+exports.profilesFreelancer = async(req,res)=>{
     try {
       const cookie = await req.headers.cookie;
-      if(!cookie){
+      if(!cookie || !cookie.includes('verifyToken')){
         return res.status(400)
         .json({
           status:'fail',
           message: 'there is no cookie here!'
         })
       }
-      const verifyToken = cookie.split('=')[1];
+      const verifyToken = cookie
+      .split('; ')
+      .find(row => row.startsWith('verifyToken='))
+      .split('=')[1];
       
       if (!verifyToken) {
         return res.status(402).json({
@@ -90,22 +40,14 @@ exports.profileUsers = async(req,res)=>{
   
       jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
         if (err) {
-          return res.render('index');
-        }
-  
-        const username = decoded.username
-        const userConsumer = await usersTable.findOne({ where: { username } })
-        const userFreelancer = await freelancerTable.findOne({ where: { username } })
-  
-        if (userConsumer) {
-          return res.json({
-            name: userConsumer.fullName,
-            username: userConsumer.username,
-            email: userConsumer.email,
-            role: 'consumer'
+          return res.status({
+            status : 'fail', 
+            message: err
           });
         }
   
+        const username = decoded.username
+        const userFreelancer = await freelancerTable.findOne({ where: { username } })
         if (userFreelancer) {
           return res.json({
             name: userFreelancer.fullName,
@@ -129,18 +71,21 @@ exports.profileUsers = async(req,res)=>{
   };
 
 
-exports.updateProfile = async(req,res)=>{
+exports.updateProfileFreelance = async(req,res)=>{
   try {
     const {fullName,password,telephoneNumber,nationalId} = req.body;
     const cookie = await req.headers.cookie;
-    if(!cookie){
+    if(!cookie || !cookie.includes('verifyToken')){
       return res.status(400)
       .json({
         status: 'fail',
         message: 'there is no cookie here!'
       })
     }
-    const verifyToken = cookie.split('=')[1];
+    const verifyToken = cookie
+    .split('; ')
+    .find(row => row.startsWith('verifyToken='))
+    .split('=')[1];
 
     if (!verifyToken) {
       return res.status(402).json({
@@ -153,13 +98,15 @@ exports.updateProfile = async(req,res)=>{
 
     jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
       if (err) {
-        return res.render('index');
+        return res.status(404).json({
+          status: 'fail',
+          message: err
+        });
       }
       const username = decoded.username
-      const userConsumer = await usersTable.findOne({ where: { username } })
       const userFreelancer = await freelancerTable.findOne({ where: { username } })
 
-     const usernameCheck = await usersTable.findAll({where : {username}})
+     const usernameCheck = await freelancerTable.findAll({where : {username}})
 
   
 
@@ -169,15 +116,6 @@ exports.updateProfile = async(req,res)=>{
         message: 'username already taken!'
       });
     }
-      if(userConsumer){
-        const hashedPassword = await bcrypt.hashSync(password,10)
-        usersTable.update({fullName,password:hashedPassword,telephoneNumber,nationalId},
-          {where: {username}});
-           res.status(200).json({
-            status:'success',
-            message: 'update success!'
-          })
-      }
       if(userFreelancer){
         const hashedPassword = await bcrypt.hashSync(password,10)
         freelancerTable.update({fullName,password:hashedPassword,telephoneNumber,nationalId},
@@ -200,7 +138,17 @@ exports.updateProfile = async(req,res)=>{
   exports.addSkill = async(req,res)=>{
     try {
       const cookie = await req.headers.cookie;
-      const verifyToken = cookie.split('=')[1];
+      if(!cookie || !cookie.includes('verifyToken')){
+        return res.status(400)
+        .json({
+          status: 'fail',
+          message: 'there is no cookie here!'
+        })
+      }
+      const verifyToken = cookie
+      .split('; ')
+      .find(row => row.startsWith('verifyToken='))
+      .split('=')[1];
       const skills = req.body.skills
       
       if (!verifyToken) {
@@ -212,7 +160,10 @@ exports.updateProfile = async(req,res)=>{
 
     jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
       if (err) {
-        return res.redirect('/');
+        return res.status(404).json({
+          status : 'fail',
+          message: err
+        });
       }
       const username = decoded.username
       const freelancer = await freelancerTable.findOne({where:{username}})
@@ -246,17 +197,29 @@ exports.updateProfile = async(req,res)=>{
 exports.getSkills = async(req,res)=>{
   try{
     const cookie = await req.headers.cookie
-    const verifyToken = cookie.split('=')[1]
-    if(!cookie){
+    if(!cookie || !cookie.includes('verifyToken')){
       return res.status(402)
       .json({
         status: 'fail',
         message: 'unauthorized!'
       })
     }
+    const verifyToken = cookie
+    .split('; ')
+    .find(row => row.startsWith('verifyToken='))
+    .split('=')[1];
+    if(!verifyToken){
+      return res.status(402).json({
+        status: 'fail',
+        message: 'unauthorized!'
+      })
+    }
     jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
       if (err) {
-        return res.redirect('/');
+        return res.status(404).json({
+          status: 'fail',
+          message: err
+        });
       }
       const username = decoded.username
       const freelancer = await freelancerTable.findOne({where:{username}})
@@ -293,7 +256,17 @@ exports.getSkills = async(req,res)=>{
 exports.uploadPhotoProfile = async (req, res) => {
   // Checking Cookie
   const {cookie} = await req.headers;
-  const verifyToken = cookie.split('=')[1];
+  if(!cookie || !cookie.includes('verifyToken')){
+    return res.status(400)
+    .json({
+      status: 'fail',
+      message: 'there is no cookie here!'
+    })
+  }
+  const verifyToken = cookie
+  .split('; ')
+  .find(row => row.startsWith('verifyToken='))
+  .split('=')[1];
 
   if(!verifyToken){
     return res.status(402)

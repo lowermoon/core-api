@@ -14,7 +14,8 @@ const { uploadFile } = require('../config/googleStorage.js');
 const { ratingFreelancers, showAllRating, totalRating } = require('../controller/rating.js');
 const reportingUsers = require('../controller/reportUsers.js');
 const { scanFaceId } = require('../controller/scanFoto.js');
-
+const  {profilesFreelancer, updateProfileFreelance}  = require('../controller/auth/freelancer/profileFreelancer.js');
+const { getCategory } = require('../controller/category.js');
 const router = express.Router();
 
 
@@ -31,6 +32,7 @@ router.get('/', async (req, res) => {
 
   router.get('/home', verify.verificationToken);
 
+  router.get('/checkToken', verify.checkExp)
 router.get('/register',(req,res)=>{
     res.render('register')
 })
@@ -39,6 +41,8 @@ router.get('/verify',(req,res)=>{
   })
   router.get('/profile/:username',profile.profileUsers);
   router.get('/profile',profile.profiles);
+
+  router.get('/profileFreelance/:username',profilesFreelancer)
   router.get('/forget',(req,res)=>{
     res.render('forget')
   })
@@ -52,12 +56,16 @@ router.get('/verify',(req,res)=>{
       };
       res.render('home/dashboard',{data});
   })
-  router.get('/logout',(req,res)=>{
-      res.clearCookie('verifyToken');
-      res.json({
+  router.post('/logout',(req,res)=>{
+      res.cookie('verifyToken', '', {maxAge: 0});
+      return res.status(200).json({
           status: 'success',
-          message: 'See You Later Nerd'})
+          message: 'Logged Out Successfully'
+        })
   })
+
+  router.get('/category',getCategory)
+
   router.get('/allProject',projects.getAllProject)
 
   // query project_id
@@ -69,7 +77,9 @@ router.get('/verify',(req,res)=>{
   // query project_id & freelancer_id
   router.post('/acceptOffer',projects.acceptOffer)
   
+  router.get('/projectUser', projects.getAllProjectUser)
   
+  router.get('/getOfferFreelance', projects.getAllOfferByFreelancer)
   //  ============================= POST ROUTER ========================================== //
   
 
@@ -103,6 +113,8 @@ router.get('/verify',(req,res)=>{
   router.post('/profile/newfaceid', uploadFile.array('file', 3), profile.uploadNewFaceId)
   router.post('/profile/uploadphoto', uploadFile.single('file'), profile.uploadPhotoProfile);
   router.post('/profile/verifFace', uploadFile.array('file',3), scanFaceId);
+  
+
   
   // router.post('/deleteProject',projects.deleteProjectsHandler)
 

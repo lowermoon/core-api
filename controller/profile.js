@@ -19,46 +19,57 @@ const createSkills = require('../models/functions/createSkills')
 const multer = require('multer')
 const { uploadPhoto } = require('../models/functions/uploadFunction')
 const { uploadNewFaceId } = require('../models/functions/photosFunction')
+const photosTable = require('../models/tables/photosTable')
+const { nanoid } = require('nanoid')
 
 exports.profileUsers = async(req,res)=>{
   const { username } = req.params;
   const cookie = await req.headers.cookie;
-  if(!cookie){
+  if(!cookie || !cookie.includes('verifyToken')){
     return res.status(400)
     .json({
       status:'fail',
       message: 'there is no cookie here!'
     })
   }
-  const verifyToken = cookie.split('=')[1];
+  const verifyToken = cookie
+  .split('; ')
+  .find(row => row.startsWith('verifyToken='))
+  .split('=')[1];
   try {
     const user = await usersTable.findOne({ where: { username } }) 
     const freelancer = await freelancerTable.findOne({where: {username}});
     if (!verifyToken) {
-
+      
       return res.status(404).json({
         status: 'fail',
         message: 'unauthorized!'
       });   
     }
-      if(user){
-       return res.status(200).json({
-          name: user.fullName,
-          username: user.username,
-          email: user.email,
-          specialPoint : user.specialPoint,
-          level: user.level,
-          role: 'consumer'
-        });
-      }
-      if(freelancer){
+    if(user){
+      const usersId = user.consumerId
+      const findPhoto = await photosTable.findOne({where: {usersId}})
+      return res.status(200).json({
+        name: user.fullName,
+        username: user.username,
+        email: user.email,
+        specialPoint : user.specialPoint,
+        level: user.level,
+        role: 'consumer',
+        profile: findPhoto.imgUrl
+      });
+    }
+    if(freelancer){
+      const usersId = freelancer.freelancer_id
+      const findPhoto = await photosTable.findOne({where: {usersId}})
       return res.status(200).json({
           name : freelancer.fullName,
           username: freelancer.username,
           email: freelancer.email,
           EXP: freelancer.experiencePoint,
           level: freelancer.level,
-          role: 'freelancer'
+          role: 'freelancer',
+          profile : findPhoto.imgUrl
         });
       }
       if(!user || !freelancer){
@@ -77,14 +88,17 @@ exports.profileUsers = async(req,res)=>{
   exports.profiles = async(req,res)=>{
     try {
       const cookie = await req.headers.cookie;
-      if(!cookie){
+      if(!cookie || !cookie.includes('verifyToken')){
         return res.status(400)
         .json({
           status:'fail',
           message: 'there is no cookie here!'
         })
       }
-      const verifyToken = cookie.split('=')[1];
+      const verifyToken = cookie
+      .split('; ')
+      .find(row => row.startsWith('verifyToken='))
+      .split('=')[1];
       
       if (!verifyToken) {
         return res.status(402).json({
@@ -92,8 +106,6 @@ exports.profileUsers = async(req,res)=>{
           message: 'unauthorized!'
         });
       }
-  
-  
       jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
         if (err) {
           return res.status(404).json({
@@ -104,24 +116,30 @@ exports.profileUsers = async(req,res)=>{
         const username = decoded.username
         const userConsumer = await usersTable.findOne({ where: { username } })
         const userFreelancer = await freelancerTable.findOne({ where: { username } })
-  
         if (userConsumer) {
+          const usersId = userConsumer.consumerId
+          const photoUriConsumer = await photosTable.findOne({where: {usersId}})
           return res.json({
             name: userConsumer.fullName,
             username: userConsumer.username,
             email: userConsumer.email,
-            role: 'consumer'
+            role: 'consumer',
+            point: userConsumer.specialPoint,
+            profile : photoUriConsumer.imgUrl
           });
         }
-  
-        if (userFreelancer) {
+        
+        if (userFreelancer ) {
+          const usersId = userFreelancer.freelancer_id
+          const photoUriFreelancer = await photosTable.findOne({where: {usersId}})
           return res.json({
             name: userFreelancer.fullName,
             nationalId : userFreelancer.nationalId,
             username: userFreelancer.username,
             email: userFreelancer.email,
             telephoneNumber: userFreelancer.telephoneNumber,
-            role: 'freelancer'
+            role: 'freelancer',
+            profile : photoUriFreelancer.imgUrl
           });
         }
   
@@ -141,15 +159,18 @@ exports.updateProfile = async(req,res)=>{
   try {
     const {fullName,password,telephoneNumber,nationalId} = req.body;
     const cookie = await req.headers.cookie;
-    if(!cookie){
+    if(!cookie || !cookie.includes('verifyToken')){
       return res.status(400)
       .json({
         status: 'fail',
         message: 'there is no cookie here!'
       })
     }
-    const verifyToken = cookie.split('=')[1];
-
+    const verifyToken = cookie
+    .split('; ')
+    .find(row => row.startsWith('verifyToken='))
+    .split('=')[1];
+  
     if (!verifyToken) {
       return res.status(402).json({
         status: 'fail',
@@ -161,7 +182,10 @@ exports.updateProfile = async(req,res)=>{
 
     jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
       if (err) {
-        return res.render('index');
+        return res.status(404).json({
+          status : 'fail',
+          message: err
+        });
       }
       const username = decoded.username
       const userConsumer = await usersTable.findOne({ where: { username } })
@@ -208,7 +232,17 @@ exports.updateProfile = async(req,res)=>{
   exports.addSkill = async(req,res)=>{
     try {
       const cookie = await req.headers.cookie;
-      const verifyToken = cookie.split('=')[1];
+      if(!cookie || !cookie.includes('verifyToken')){
+        return res.status(400)
+        .json({
+          status: 'fail',
+          message: 'there is no cookie here!'
+        })
+      }
+      const verifyToken = cookie
+      .split('; ')
+      .find(row => row.startsWith('verifyToken='))
+      .split('=')[1];
       const skills = req.body.skills
       
       if (!verifyToken) {
@@ -220,7 +254,10 @@ exports.updateProfile = async(req,res)=>{
 
     jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
       if (err) {
-        return res.redirect('/');
+        return res.status(404).json({
+          status: 'fail',
+          message: err
+        });
       }
       const username = decoded.username
       const freelancer = await freelancerTable.findOne({where:{username}})
@@ -247,8 +284,18 @@ exports.updateProfile = async(req,res)=>{
 exports.getSkills = async(req,res)=>{
   try{
     const cookie = await req.headers.cookie
-    const verifyToken = cookie.split('=')[1]
-    if(!cookie){
+    if(!cookie || !cookie.includes('verifyToken')){
+      return res.status(402)
+      .json({
+        status: 'fail',
+        message: 'unauthorized!'
+      })
+    }
+    const verifyToken = cookie
+    .split('; ')
+    .find(row => row.startsWith('verifyToken='))
+    .split('=')[1];
+    if(!verifyToken){
       return res.status(402)
       .json({
         status: 'fail',
@@ -288,7 +335,17 @@ exports.getSkills = async(req,res)=>{
 exports.uploadPhotoProfile = async (req, res) => {
   // Checking Cookie
   const {cookie} = await req.headers;
-  const verifyToken = cookie.split('=')[1];
+  if(!cookie || !cookie.includes('verifyToken')){
+    return res.status(402)
+    .json({
+      status: 'fail',
+      message: 'Unauthorized! You need to login first'
+    })
+  }
+  const verifyToken = cookie
+  .split('; ')
+  .find(row => row.startsWith('verifyToken='))
+  .split('=')[1];
 
   if(!verifyToken){
     return res.status(402)
@@ -328,8 +385,9 @@ exports.uploadPhotoProfile = async (req, res) => {
       const role = 'users';
       const fileName = `photos_${role}_${user.consumerId}`;
       uploadPhoto({ target: role, fileName: fileName, file: file })
-      .then(response => {
+      .then(async response => {
         const {publicUrl} = response;
+        await photosTable.update({imgUrl:publicUrl},{where:{usersId:user.consumerId}})
         return res.status(200).json({
           status: 'success',
           message: 'Photo successfully uploaded!',
@@ -347,10 +405,12 @@ exports.uploadPhotoProfile = async (req, res) => {
 
     if(freelancer) {
       const role = 'freelancers';
-      const fileName = `photos_${role}_${freelancer.freelancer_id}`;
+      const random = nanoid(3)
+      const fileName = `photos_${role}_${freelancer.freelancer_id}_${random}`;
       uploadPhoto({ target: role, fileName: fileName, file: file })
-      .then(response => {
+      .then(async response => {
         const {publicUrl} = response;
+        await photosTable.update({imgUrl:publicUrl},{where:{usersId:freelancer.freelancer_id}})
         return res.status(200).json({
           status: 'success',
           message: 'Photo successfully uploaded!',
@@ -371,7 +431,17 @@ exports.uploadPhotoProfile = async (req, res) => {
 exports.uploadNewFaceId = async (req, res) => {
   try {
     const {cookie} = await req.headers;
-    const verifyToken = cookie.split('=')[1];
+    if(!cookie || !cookie.includes('verifyToken')){
+      return res.status(402)
+      .json({
+        status: 'fail',
+        message: 'Unauthorized! You need to login first'
+      })
+    }
+    const verifyToken = cookie
+    .split('; ')
+    .find(row => row.startsWith('verifyToken='))
+    .split('=')[1];
 
     if(!verifyToken){
       return res.status(402)

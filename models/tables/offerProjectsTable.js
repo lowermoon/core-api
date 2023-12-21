@@ -5,6 +5,9 @@ const offerProjectsTable = db.define('offerProjects', {
     project_id: {
         type: DataTypes.STRING
     },
+    project_name: {
+        type: DataTypes.STRING
+    },
     user_id: {
         type: DataTypes.STRING
     },
@@ -19,10 +22,16 @@ const offerProjectsTable = db.define('offerProjects', {
     },
     freelancerId: {
         type: DataTypes.STRING
-    },  
+    }, 
+    project_category:{
+        type: DataTypes.STRING
+    },
+    imgUrl: {
+        type: DataTypes.STRING
+    }
 });
 
-offerProjectsTable.sync({alter:true}).then(() => {
+offerProjectsTable.sync().then(() => {
     console.log('offerProjects table is synchronized!')
 });
 

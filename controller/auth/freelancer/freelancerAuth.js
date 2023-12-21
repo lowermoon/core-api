@@ -6,6 +6,8 @@ const {createFreelancer,updateFreelancer,findFreelancer, usernameFreelancer, ema
 const createRecords  = require('../../../models/functions/createRecords');
 const  {mailOptions,transporter}  = require('../../../middleware/email');
 const reportTable = require('../../../models/tables/reportTable');
+const photosTable = require('../../../models/tables/photosTable');
+
 
 
 dotenv.config();
@@ -32,12 +34,13 @@ exports.loginFreelancer = async(req,res)=>{
             const ID = freelancer.freelancer_id
             const role = "freelancer"
             
-            const token = jwt.sign({username},process.env.ACCESS_TOKEN_SECRET,{expiresIn: '1h'})
+            const token = jwt.sign({username},process.env.ACCESS_TOKEN_SECRET,{expiresIn: '7d'})
             createRecords(ID,role)
             return res.cookie('verifyToken',token,{
               httpOnly: true,
-              maxAge: 24*60*60*1000,
-              secure: true  
+              maxAge: 24*60*60*7000,
+              secure: true,
+              sameSite: 'none'  
             })
             .status(201).setHeader('Content-Type', 'application/json') 
             // sending the data to the FE
@@ -61,11 +64,11 @@ exports.loginFreelancer = async(req,res)=>{
 
             const ID = freelancer.freelancer_id
             const role = "freelancer"
-            const token = jwt.sign({username},process.env.ACCESS_TOKEN_SECRET,{expiresIn: '1h'})
+            const token = jwt.sign({username},process.env.ACCESS_TOKEN_SECRET,{expiresIn: '7d'})
             createRecords(ID,role)
             return res.cookie('verifyToken',token,{
                 httpOnly: true,
-                maxAge: 24*60*60*1000,
+                maxAge: 24*60*60*100000,
                 secure: true  
             })
             .status(201).setHeader('Content-Type', 'application/json') 
@@ -181,10 +184,13 @@ exports.verify = async (req,res) => {
     try{
     const {userVerificationCode,email} = req.body
     const cookie = req.headers.cookie;
-    if (!cookie) {
+    if (!cookie || !cookie.includes('saveData')) {
       return res.json({status: 'fail',message: 'fail'});
     }
-    const data = cookie.split('=')[1];
+    const data = cookie
+    .split('; ')
+    .find(row => row.startsWith('saveData='))
+    .split('=')[1];
     jwt.verify(data, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
     if(err){
       return res.status(404)
@@ -212,6 +218,9 @@ exports.verify = async (req,res) => {
             dataStorage.email,
             dataStorage.password
             )
+            await photosTable.create({
+              usersId : freelancer_id,
+            })
             return res.status(201).json({
               status: 'success',
               message: 'register successfully',

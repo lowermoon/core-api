@@ -59,14 +59,17 @@ exports.forgetPassword = async (req, res) => {
         const userVerifCode = req.body.userVerifCode
         const cookie = req.headers.cookie
         
-        if(!cookie){
+        if(!cookie || cookie.includes('emailToken')){
             return res.status(400).
             json({
                 status: 'fail',
                 message: 'cookie not found!'
             })
         }
-        const emailToken = cookie.split('=')[1]
+        const emailToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('emailToken='))
+        .split('=')[1];
         if (!emailToken) {
             return res.status(402)
             .json('unauthorized');
@@ -105,14 +108,17 @@ exports.forgetPassword = async (req, res) => {
  exports.enterNewPassword = async(req,res)=>{
     const {password,confirmNewPassword} =req.body
     const cookie = req.headers.cookie
-    if(!cookie){
+    if(!cookie || !cookie.includes('emailToken')){
         return res.status(400)
         .json({
             status: 'fail',
             message: 'cookie not found!'
         })
     }
-    const emailToken = cookie.split('=')[1]
+    const emailToken = cookie
+    .split('; ')
+    .find(row => row.startsWith('emailToken='))
+    .split('=')[1];
     if(!emailToken){
         return res.status(404)
         .json({

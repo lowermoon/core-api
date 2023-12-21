@@ -13,11 +13,13 @@ dotenv.config();
 const usersTable = require('../../../models/tables/usersTable');
 const freelancerTable = require('../../../models/tables/freelancerTable');
 
+
 // Functions
 const {createUser,findUser, usernameConsumer, emailConsumer} = require('../../../models/functions/usersFunction');
 const {createFreelancer,updateFreelancer,findFreelancer, usernameFreelancer, emailFreelancer} = require('../../../models/functions/freelancerFunction');
 const createRecords  = require('../../../models/functions/createRecords');
 const  {mailOptions,transporter}  = require('../../../middleware/email');
+const photosTable = require('../../../models/tables/photosTable');
 
 
 
@@ -40,11 +42,12 @@ exports.loginUsers = async(req,res)=>{
       console.log(role)
       console.log(ID)
       createRecords(ID,role)
-      const token = jwt.sign({username},process.env.ACCESS_TOKEN_SECRET,{expiresIn: '1h'})
+      const token = jwt.sign({username},process.env.ACCESS_TOKEN_SECRET,{expiresIn: '7d'})
       return res.cookie('verifyToken',token,{
         httpOnly: true,
-        maxAge: 24*60*60*1000,
-        secure: true
+        maxAge: 24*60*60*7000,
+        secure: true,
+        sameSite: 'none'
       })
       .status(201).setHeader('Content-Type', 'application/json')
       //sending data to FE
@@ -80,10 +83,13 @@ exports.verify = async (req,res) => {
   try{
   const {userVerificationCode,email} = req.body
   const cookie = req.headers.cookie;
-  if (!cookie) {
+  if (!cookie || !cookie.includes('saveData')) {
     return res.json({status: 'fail',message: 'fail'});
   }
-  const data = cookie.split('=')[1];
+  const data = cookie
+  .split('; ')
+  .find(row => row.startsWith('saveData='))
+  .split('=')[1];
   jwt.verify(data, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
   if(err){
     return res.status(404)
@@ -111,6 +117,9 @@ exports.verify = async (req,res) => {
         dataStorage.email,
         dataStorage.password,
         )
+        photosTable.create({
+          usersId : consumerId,
+        })
         return res.status(201).json({
           status: 'sucess',
           message: 'register successfully!',

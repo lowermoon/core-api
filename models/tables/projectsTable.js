@@ -4,23 +4,34 @@ const db = require("../../dbconfig");
 const projectsTable = db.define('projects', {
     project_id: {
         type: DataTypes.STRING,
-        primaryKey: true
+        notNull: false
     },
     project_name: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        notNull: false
     },
     project_desc: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        notNull: false
     },
     user_id: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        notNull: false
     },
     deadline: {
-        type: DataTypes.DATEONLY
+        type: DataTypes.DATEONLY,
+        notNull: false
     },
-    project_category: {
-        type: DataTypes.ARRAY(Sequelize.TEXT)
-    }
+    project_category:{
+        type: DataTypes.STRING,
+        notNull: false
+    },
+    imgUrl : {
+        type: DataTypes.STRING,
+        notNull: false
+    },
+}, {
+    timestamps: false
 });
 
 projectsTable.sync().then(() => {

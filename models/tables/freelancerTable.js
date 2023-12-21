@@ -46,9 +46,6 @@ const freelancerTable = db.define('freelancer', {
     socialMedia: {
         type: DataTypes.STRING,
     },
-    Comment:{
-        type: DataTypes.STRING,
-    },
     CreditQ:{
         type: DataTypes.STRING,
         defaultValue: '0',
