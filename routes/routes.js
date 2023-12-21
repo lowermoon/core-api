@@ -15,7 +15,7 @@ const { ratingFreelancers, showAllRating, totalRating } = require('../controller
 const reportingUsers = require('../controller/reportUsers.js');
 const { scanFaceId } = require('../controller/scanFoto.js');
 const  {profilesFreelancer, updateProfileFreelance}  = require('../controller/auth/freelancer/profileFreelancer.js');
-const { getCategory } = require('../controller/category.js');
+const { getCategory, addPreference } = require('../controller/category.js');
 const router = express.Router();
 
 
@@ -82,6 +82,8 @@ router.get('/verify',(req,res)=>{
   router.get('/getOfferFreelance', projects.getAllOfferByFreelancer)
   //  ============================= POST ROUTER ========================================== //
   
+
+  router.post('/createPreference' ,addPreference )
 
   // router buyer
   router.post('/loginUsers', auth.loginUsers)
