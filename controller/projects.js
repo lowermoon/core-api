@@ -292,7 +292,7 @@ exports.getAllProjectUser = async(req,res)=>{
             }
             const user_id = user.consumerId
             const project = await projectsTable.findAll({where: {user_id}})
-            if(project.length === 0){
+            if(!project){
                 return res.status(404).json({
                     status: 'fail',
                     message: 'you not create project yet!'
