@@ -312,7 +312,7 @@ exports.getAllProjectUser = async(req,res)=>{
                 return {
                     ...item.dataValues,
                     offer: offer.length,
-                    active: !active  ? false : true 
+                    active: active && active.status == 'active'  ? true : false 
                 }
             }))
             res.status(200).json({
@@ -539,13 +539,23 @@ exports.getAllOfferByFreelancer = async(req,res)=>{
                     message: 'there is no offer!',
                 })
             }
-            return res.status(200).json({
-                status: 'success',
-                message: 'success get all offer',
-                result: {
-                    findOffer
+            const newData = await Promise.all(findOffer.map(async (item) => {
+                const active = await activeProjectsTable.findOne({
+                    where: {
+                        freelancer_id: item.freelancerId
+                    }
+                })
+                return {
+                    ...item.dataValues,
+                    active: active && active.status == 'active'  ? true : false 
                 }
+            }))
+            res.status(200).json({
+                status: 'success',
+                message: 'success get all project',
+                newData
             })
+            
         })
     } catch (error) {
         return res.status(500).json({
