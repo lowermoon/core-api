@@ -74,6 +74,9 @@ router.get('/verify',(req,res)=>{
   // query project_id
   router.get('/allOffer',projects.getAllOffer)
 
+  // query user_id
+  router.get('/activeProject', projects.getActiveProject)
+
   // query project_id & freelancer_id
   router.post('/acceptOffer',projects.acceptOffer)
   
