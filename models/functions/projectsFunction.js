@@ -40,15 +40,14 @@ const newProject = async (data) => {
 
 const deleteProject = async (project_id) => {
     const isDataExist = await projectsTable.findOne({where: {project_id}})
-    const offerProject = await offerProjectsTable.findOne({where: {project_id}})
-    const activeProject = await activeProjectsTable.findOne({where: {project_id}})
-    if(!isDataExist || !offerProject || !activeProject) {
+
+    if(!isDataExist) {
         return false;
     }
 
-    projectsTable.destroy({ where: {project_id}})
-    offerProjectsTable.destroy({ where: {project_id}})
-    activeProjectsTable.destroy({ where: {project_id}})
+    await projectsTable.destroy({ where: {project_id}})
+    await offerProjectsTable.destroy({ where: {project_id}})
+    await activeProjectsTable.destroy({ where: {project_id}})
     return true;
 };
 
