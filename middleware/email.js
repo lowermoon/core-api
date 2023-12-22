@@ -15,17 +15,14 @@ const transporter = nodemailer.createTransport({
 
 const mailOptions = async(email,username,verificationCode)=>{
     return{
-        from: '"LowerMoon" uppermoon1404@gmail.com',
+        from: '"Skill Shift" uppermoon1404@gmail.com',
         to: email,
         subject: "Verification Code",
         text: `Your verification code is : ${verificationCode}`,
         html: `
-        <hr>
-        <h1 style: "text-align: center;"> Soft Skill</h1>
-        <hr>
-        <br>
+        <img src="https://storage.googleapis.com/skillshift-bucket/photos/Logo.png" alt="SkillShift" style="display: block; margin: 0 auto; width: 200px;">
         <br>Hai ${username}<br>
-        <br><b>Your Verification code is ${verificationCode}<b></br>
+        <br>Your Verification code is <b>${verificationCode}<b></br>
         <br>
         <br>
         <hr>
