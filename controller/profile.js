@@ -383,7 +383,8 @@ exports.uploadPhotoProfile = async (req, res) => {
     // Make upload based on the role;
     if (user) {
       const role = 'users';
-      const fileName = `photos_${role}_${user.consumerId}`;
+      const random = nanoid(3)
+      const fileName = `photos_${role}_${user.consumerId}_${random}`;
       uploadPhoto({ target: role, fileName: fileName, file: file })
       .then(async response => {
         const {publicUrl} = response;
