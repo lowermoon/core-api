@@ -3,6 +3,7 @@ const db = require("../../dbconfig/index");
 const projectsTable = require("../tables/projectsTable");
 const { nanoid } = require("nanoid");
 const activeProjectsTable = require("../tables/activeProjectsTable");
+const offerProjectsTable = require("../tables/offerProjectsTable");
 
 // --------------------------------------------------- PROJECTS TABLE FUNCTIONS
 const newProject = async (data) => {
@@ -39,10 +40,15 @@ const newProject = async (data) => {
 
 const deleteProject = async (project_id) => {
     const isDataExist = await projectsTable.findOne({where: {project_id}})
-    if(!isDataExist) {
+    const offerProject = await offerProjectsTable.findOne({where: {project_id}})
+    const activeProject = await activeProjectsTable.findOne({where: {project_id}})
+    if(!isDataExist || !offerProject || !activeProject) {
         return false;
     }
+
     projectsTable.destroy({ where: {project_id}})
+    offerProjectsTable.destroy({ where: {project_id}})
+    activeProjectsTable.destroy({ where: {project_id}})
     return true;
 };
 
