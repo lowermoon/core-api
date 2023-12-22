@@ -1,4 +1,6 @@
 const offerProjectsTable = require("../../models/tables/offerProjectsTable");
+const activeProjectsTable = require("../tables/activeProjectsTable");
+const projectsTable = require("../tables/projectsTable");
 
 const offerProjects = async (
   project_id,
@@ -32,9 +34,20 @@ const offerProjects = async (
 
 const allOfferProjects = async (project_id) => {
     try {
-        const offerProjects = await offerProjectsTable.findAll({attributes: ['project_name','freelancerName','offer_price','offer_desc','project_category','imgUrl'],where: {project_id}});
-        
-        return offerProjects;
+        const offerProjects = await offerProjectsTable.findAll({attributes: ['project_id','project_name','freelancerName','user_id','offer_price','offer_desc','freelancerId','project_category','imgUrl'],where: {project_id}});
+        const newData = await Promise.all(offerProjects.map(async (item) => {
+          const active = await activeProjectsTable.findOne({
+              where: {
+                  user_id: item.user_id
+              }
+          })
+          return {
+              ...item.dataValues,
+              active: active && active.status == 'active'  ? true : false 
+          }
+      }))
+
+        return newData;
     } catch (error) {
         throw error;
     }

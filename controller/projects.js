@@ -206,7 +206,7 @@ exports.getAllProject = async (req,res) =>{
                     status: 'success',
                     message: 'success get all project',
                     result: {
-                        project
+                        project,
                     }
                 })
             }
@@ -298,12 +298,27 @@ exports.getAllProjectUser = async(req,res)=>{
                     message: 'you not create project yet!'
                 })
             }
-            return res.status(200).json({
+            const newData = await Promise.all(project.map(async (item) => {
+                const offer = await offerProjectsTable.findAll({
+                    where: {
+                        user_id: item.user_id
+                    }
+                })
+                const active = await activeProjectsTable.findOne({
+                    where: {
+                        user_id: item.user_id
+                    }
+                })
+                return {
+                    ...item.dataValues,
+                    offer: offer.length,
+                    active: !active  ? false : true 
+                }
+            }))
+            res.status(200).json({
                 status: 'success',
                 message: 'success get all project',
-                result: {
-                    project,
-                }
+                newData
             })
             })
 
@@ -549,6 +564,16 @@ exports.acceptOffer = async(req,res)=>{
                 message: 'there is no cookie there!'
             })
         }
+        const verifyToken = cookie
+        .split('; ')
+        .find(row => row.startsWith('verifyToken='))
+        .split('=')[1];
+        if(!verifyToken){  
+            return res.status(400).json({
+                status: 'fail',
+                message: 'unauthorized!'
+            })
+        }
         const project_id = req.query.project_id
         const freelancer_id = req.query.freelancer_id
         const price = req.query.price
@@ -561,16 +586,6 @@ exports.acceptOffer = async(req,res)=>{
             })
         }
         
-        const verifyToken = cookie
-        .split('; ')
-        .find(row => row.startsWith('verifyToken='))
-        .split('=')[1];
-        if(!verifyToken){  
-            return res.status(400).json({
-                status: 'fail',
-                message: 'unauthorized!'
-            })
-        }
         jwt.verify(verifyToken, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
             if(err){
                 return res.status(404).json({

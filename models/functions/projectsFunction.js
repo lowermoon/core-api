@@ -80,12 +80,27 @@ const searchProjectsFilter = async (filter, value) => {
 
 const allProject = async () =>{
     try {
-        const project = projectsTable.findAll({
+        const project = await projectsTable.findAll({
             attributes:["project_id","user_id","project_name","project_desc","deadline","project_category","imgUrl"],
         })
-        if(project){
-            return project;
-        }
+        const newData = await Promise.all(project.map(async (item) => {
+            const offer = await offerProjectsTable.findAll({
+                where: {
+                    project_id: item.project_id
+                }
+            })
+            const active = await activeProjectsTable.findAll({
+                where: {
+                    project_id: item.project_id
+                }
+            })
+            return {
+                ...item.dataValues,
+                offer: offer.length,
+                active: active && active.status == 'active' ? true : false 
+            }
+        }))
+        return newData
     } catch (error) {
         throw error;
     }
@@ -97,12 +112,34 @@ const updateProjects = async (data) => {
 
 const getProjectById = async (project_id) => {
     try {
-        const project = await projectsTable.findOne({where: {project_id},attributes:["project_id","user_id","project_name","project_desc","project_category","deadline"]});
-        if(project){
-            return project;
+        const project = await projectsTable.findOne({
+            where: {project_id},
+            attributes:["project_id","user_id","project_name","project_desc","project_category","deadline"]
+        });
+        if(!project) {
+            return false;
         }
+        const offer = await offerProjectsTable.findAll({
+            where: {
+                project_id: project.project_id
+            }
+        });
+
+        const active = await activeProjectsTable.findOne({
+            where: {
+                project_id: project.project_id
+            }
+        });
+
+        const newData = {
+            ...project.dataValues,
+            offer: offer.length,
+            active: active && active.status == 'active' ? true : false 
+        };
+
+        return newData;
     } catch (error) {
-        throw error
+        throw error;
     }
 }
 // 
